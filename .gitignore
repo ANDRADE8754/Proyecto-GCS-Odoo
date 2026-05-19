@@ -1,21 +1,3 @@
-# Docker
-.docker/
-docker-compose.override.yml
-
-# Odoo filestore y datos
-backups/
-filestore/
-**/filestore/
-odoo-GC-db-data/
-odoo-GC-web-data/
-
-# Base de datos
-*.dump
-*.sql
-*.db
-*.sqlite
-*.sqlite3
-
 # Python
 __pycache__/
 *.py[cod]
