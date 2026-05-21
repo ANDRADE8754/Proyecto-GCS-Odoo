@@ -38,6 +38,7 @@ MANIFEST
 .project
 .pydevproject
 .settings/
+postgresql/
 
 # Logs
 *.log
