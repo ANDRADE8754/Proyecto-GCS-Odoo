@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <!-- list VIEW -->
-    <record id="view_techstore_equipo_list" model="ir.ui.view">
-        <field name="name">techstore.equipo.list</field>
+    <!-- tree VIEW -->
+    <record id="view_techstore_equipo_tree" model="ir.ui.view">
+        <field name="name">techstore.equipo.tree</field>
         <field name="model">techstore.equipo</field>
         <field name="arch" type="xml">
-            <list>
+            <tree>
                 <field name="name"/>
                 <field name="cliente_id"/>
                 <field name="tipo_equipo"/>
                 <field name="marca"/>
                 <field name="modelo"/>
                 <field name="estado"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -38,12 +38,12 @@
                     <notebook>
                         <page string="Mantenimientos">
                             <field name="mantenimiento_ids">
-                                <list editable="bottom">
+                                <tree editable="bottom">
                                     <field name="name"/>
                                     <field name="fecha_ingreso"/>
                                     <field name="estado"/>
                                     <field name="costo"/>
-                                </list>
+                                </tree>
                             </field>
                         </page>
                     </notebook>
@@ -57,7 +57,7 @@
     <record id="action_techstore_equipo" model="ir.actions.act_window">
         <field name="name">Equipos</field>
         <field name="res_model">techstore.equipo</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
     </record>
 
     <!-- MENU -->
