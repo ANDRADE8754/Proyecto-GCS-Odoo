@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_techstore_equipo_user,techstore.equipo.user,model_techstore_equipo,base.group_user,1,1,1,1
