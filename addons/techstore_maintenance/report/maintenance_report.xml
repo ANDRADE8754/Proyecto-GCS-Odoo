@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+ 
+    <record id="action_report_techstore_order" model="ir.actions.report">
+        <field name="name">Orden de Mantenimiento</field>
+        <field name="model">techstore.maintenance.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">techstore_maintenance.report_order_document</field>
+        <field name="report_file">techstore_maintenance.report_order_document</field>
+        <field name="binding_model_id" ref="model_techstore_maintenance_order"/>
+        <field name="binding_type">report</field>
+    </record>
+ 
+    <template id="report_order_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+ 
+                        <h2 class="text-center">Orden de Mantenimiento</h2>
+                        <h3 class="text-center"><t t-esc="o.name"/></h3>
+                        <hr/>
+ 
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Cliente:</strong>
+                                <span><t t-esc="o.partner_id.name"/></span><br/>
+                                <strong>Equipo:</strong>
+                                <span><t t-esc="o.equipment_id.name"/></span><br/>
+                                <strong>Prioridad:</strong>
+                                <span><t t-esc="dict(o._fields['priority'].selection).get(o.priority)"/></span>
+                            </div>
+                            <div class="col-6">
+                                <strong>Estado:</strong>
+                                <span><t t-esc="dict(o._fields['state'].selection).get(o.state)"/></span><br/>
+                                <strong>Tecnico:</strong>
+                                <span><t t-esc="o.technician_id.name or 'No asignado'"/></span><br/>
+                                <strong>Fecha de Ingreso:</strong>
+                                <span><t t-esc="o.date_request"/></span>
+                            </div>
+                        </div>
+ 
+                        <hr/>
+                        <h4>Descripcion del Problema</h4>
+                        <p><t t-esc="o.description"/></p>
+ 
+                        <t t-if="o.diagnosis">
+                            <h4>Diagnostico Tecnico</h4>
+                            <p><t t-esc="o.diagnosis"/></p>
+                        </t>
+ 
+                        <t t-if="o.activities_done">
+                            <h4>Actividades Realizadas</h4>
+                            <p><t t-esc="o.activities_done"/></p>
+                        </t>
+ 
+                        <t t-if="o.material_ids">
+                            <h4>Materiales y Repuestos Utilizados</h4>
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Material / Repuesto</th>
+                                        <th class="text-right">Cantidad</th>
+                                        <th class="text-right">Precio Unit.</th>
+                                        <th class="text-right">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.material_ids" t-as="line">
+                                        <td><t t-esc="line.product_id.name"/></td>
+                                        <td class="text-right"><t t-esc="line.quantity"/></td>
+                                        <td class="text-right"><t t-esc="line.unit_price"/></td>
+                                        <td class="text-right"><t t-esc="line.subtotal"/></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3"><strong>TOTAL</strong></td>
+                                        <td class="text-right"><strong><t t-esc="o.total_cost"/></strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </t>
+ 
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+ 
+    </data>
+</odoo>
