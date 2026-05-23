@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+ 
+    <record id="view_techstore_order_form" model="ir.ui.view">
+        <field name="name">techstore.maintenance.order.form</field>
+        <field name="model">techstore.maintenance.order</field>
+        <field name="arch" type="xml">
+            <form string="Orden de Mantenimiento">
+ 
+                <header>
+                    <button name="action_set_diagnosis"
+                            string="Iniciar Diagnostico"
+                            type="object"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+ 
+                    <button name="action_set_in_progress"
+                            string="Iniciar Trabajo"
+                            type="object"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'diagnosis')]}"/>
+ 
+                    <button name="action_set_done"
+                            string="Marcar como Listo"
+                            type="object"
+                            class="btn-primary"
+                            attrs="{'invisible': [('state', '!=', 'in_progress')]}"/>
+ 
+                    <button name="action_set_delivered"
+                            string="Registrar Entrega"
+                            type="object"
+                            class="btn-success"
+                            attrs="{'invisible': [('state', '!=', 'done')]}"/>
+ 
+                    <button name="action_cancel"
+                            string="Cancelar"
+                            type="object"
+                            class="btn-danger"
+                            attrs="{'invisible': [('state', 'in', ['delivered', 'cancelled'])]}"/>
+ 
+                    <button name="action_reset_draft"
+                            string="Reabrir"
+                            type="object"
+                            groups="techstore_maintenance.group_techstore_admin"
+                            attrs="{'invisible': [('state', '!=', 'cancelled')]}"/>
+ 
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,diagnosis,in_progress,done,delivered"/>
+                </header>
+ 
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+ 
+                    <group>
+                        <group string="Informacion del Servicio">
+                            <field name="partner_id"/>
+                            <field name="equipment_id"/>
+                            <field name="priority" widget="priority"/>
+                            <field name="technician_id"/>
+                        </group>
+                        <group string="Fechas">
+                            <field name="date_request"/>
+                            <field name="date_start"/>
+                            <field name="date_finish"/>
+                            <field name="date_delivery"/>
+                            <field name="resolution_hours" widget="float_time"
+                                   attrs="{'invisible': [('resolution_hours', '=', 0)]}"/>
+                        </group>
+                    </group>
+ 
+                    <notebook>
+                        <page string="Descripcion del Problema">
+                            <field name="description"
+                                   placeholder="Describa el problema reportado por el cliente..."/>
+                        </page>
+ 
+                        <page string="Diagnostico Tecnico">
+                            <field name="diagnosis"
+                                   placeholder="Ingrese el diagnostico tecnico del equipo..."/>
+                            <field name="activities_done"
+                                   placeholder="Describa las actividades realizadas..."/>
+                        </page>
+ 
+                        <page string="Materiales y Repuestos">
+                            <field name="material_ids">
+                                <tree editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="quantity"/>
+                                    <field name="unit_price"/>
+                                    <field name="subtotal" readonly="1"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="total_cost" readonly="1"
+                                       string="Costo Total"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+ 
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+ 
+            </form>
+        </field>
+    </record>
+ 
+ 
+    <record id="view_techstore_order_list" model="ir.ui.view">
+        <field name="name">techstore.maintenance.order.list</field>
+        <field name="model">techstore.maintenance.order</field>
+        <field name="arch" type="xml">
+            <tree string="Ordenes de Mantenimiento"
+                  decoration-danger="priority == '3'"
+                  decoration-warning="priority == '2'"
+                  decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="equipment_id"/>
+                <field name="priority" widget="priority"/>
+                <field name="technician_id"/>
+                <field name="date_request"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'delivered'"
+                       decoration-warning="state == 'done'"
+                       decoration-info="state in ['diagnosis', 'in_progress']"
+                       decoration-muted="state == 'cancelled'"/>
+                <field name="total_cost"/>
+            </tree>
+        </field>
+    </record>
+ 
+ 
+    <record id="view_techstore_order_kanban" model="ir.ui.view">
+        <field name="name">techstore.maintenance.order.kanban</field>
+        <field name="model">techstore.maintenance.order</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="priority"/>
+                <field name="technician_id"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <strong><field name="name"/></strong>
+                                <div><field name="partner_id"/></div>
+                                <div><field name="equipment_id"/></div>
+                                <div>
+                                    <field name="priority" widget="priority"/>
+                                    <field name="technician_id"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+ 
+ 
+    <record id="view_techstore_order_search" model="ir.ui.view">
+        <field name="name">techstore.maintenance.order.search</field>
+        <field name="model">techstore.maintenance.order</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Ordenes">
+                <field name="name" string="Numero de Orden"/>
+                <field name="partner_id" string="Cliente"/>
+                <field name="technician_id" string="Tecnico"/>
+ 
+                <filter string="Urgentes" name="filter_urgent"
+                        domain="[('priority', '=', '3')]"/>
+                <filter string="Activas" name="filter_active"
+                        domain="[('state', 'not in', ['delivered', 'cancelled'])]"/>
+                <filter string="Mis Ordenes" name="filter_mine"
+                        domain="[('technician_id.user_id', '=', uid)]"/>
+                <separator/>
+                <filter string="Hoy" name="filter_today"
+                        domain="[('date_request', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+ 
+                <group expand="0" string="Agrupar por">
+                    <filter string="Estado" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Tecnico" name="group_technician"
+                            context="{'group_by': 'technician_id'}"/>
+                    <filter string="Prioridad" name="group_priority"
+                            context="{'group_by': 'priority'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+ 
+ 
+    <record id="view_techstore_order_pivot" model="ir.ui.view">
+        <field name="name">techstore.maintenance.order.pivot</field>
+        <field name="model">techstore.maintenance.order</field>
+        <field name="arch" type="xml">
+            <pivot string="Analisis de Mantenimientos">
+                <field name="technician_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="resolution_hours" type="measure"/>
+                <field name="total_cost" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+ 
+ 
+    <record id="view_techstore_order_graph" model="ir.ui.view">
+        <field name="name">techstore.maintenance.order.graph</field>
+        <field name="model">techstore.maintenance.order</field>
+        <field name="arch" type="xml">
+            <graph string="Estadisticas de Mantenimientos" type="bar">
+                <field name="state" type="row"/>
+                <field name="id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+ 
+ 
+    <record id="action_techstore_maintenance_order" model="ir.actions.act_window">
+        <field name="name">Ordenes de Mantenimiento</field>
+        <field name="res_model">techstore.maintenance.order</field>
+        <field name="view_mode">list,kanban,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_techstore_order_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+    </record>
+ 
+    </data>
+</odoo>

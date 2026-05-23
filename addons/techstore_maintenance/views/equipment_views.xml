@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+ 
+    <record id="view_equipment_form_inherit" model="ir.ui.view">
+        <field name="name">maintenance.equipment.form.inherit.techstore</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Historial de Mantenimientos TechStore">
+                    <field name="techstore_order_ids" readonly="1">
+                        <tree>
+                            <field name="name"/>
+                            <field name="date_request"/>
+                            <field name="technician_id"/>
+                            <field name="state" widget="badge"/>
+                            <field name="total_cost"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+ 
+    </data>
+</odoo>
