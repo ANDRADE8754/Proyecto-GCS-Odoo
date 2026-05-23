@@ -21,7 +21,7 @@
         'views/equipment_views.xml',
         'views/dashboard_views.xml',
         'views/menus.xml',
-        'report/maintenance_report.xml',
+        #'report/maintenance_report.xml',
     ],
     'installable': True,
     'application': True,

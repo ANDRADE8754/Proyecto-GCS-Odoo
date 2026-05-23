@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+ 
+    <menuitem id="menu_techstore_root"
+              name="TechStore"
+              sequence="10"/>
+ 
+    <menuitem id="menu_techstore_maintenance"
+              name="Mantenimientos"
+              parent="menu_techstore_root"
+              sequence="10"/>
+ 
+    <menuitem id="menu_techstore_orders"
+              name="Ordenes de Mantenimiento"
+              parent="menu_techstore_maintenance"
+              action="action_techstore_maintenance_order"
+              sequence="10"/>
+ 
+    <menuitem id="menu_techstore_my_orders"
+              name="Mis Trabajos"
+              parent="menu_techstore_maintenance"
+              action="action_my_techstore_orders"
+              groups="techstore_maintenance.group_techstore_technician"
+              sequence="20"/>
+ 
+    <menuitem id="menu_techstore_reports"
+              name="Reportes y Metricas"
+              parent="menu_techstore_root"
+              sequence="20"
+              groups="techstore_maintenance.group_techstore_admin,techstore_maintenance.group_techstore_manager"/>
+ 
+    <menuitem id="menu_techstore_dashboard"
+              name="Dashboard"
+              parent="menu_techstore_reports"
+              action="action_techstore_dashboard"
+              sequence="10"/>
+ 
+    </data>
+</odoo>

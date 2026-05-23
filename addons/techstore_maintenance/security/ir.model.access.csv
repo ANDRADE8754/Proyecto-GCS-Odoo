@@ -1,12 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
- 
-# --- Modelo principal: orden de mantenimiento ---
 access_maint_order_admin,maint.order.admin,model_techstore_maintenance_order,group_techstore_admin,1,1,1,1
 access_maint_order_manager,maint.order.manager,model_techstore_maintenance_order,group_techstore_manager,1,1,1,0
 access_maint_order_tech,maint.order.tech,model_techstore_maintenance_order,group_techstore_technician,1,1,0,0
 access_maint_order_recep,maint.order.recep,model_techstore_maintenance_order,group_techstore_receptionist,1,1,1,0
- 
-# --- Modelo de lineas de materiales ---
 access_maint_material_admin,maint.material.admin,model_techstore_maintenance_material,group_techstore_admin,1,1,1,1
 access_maint_material_manager,maint.material.manager,model_techstore_maintenance_material,group_techstore_manager,1,1,1,0
 access_maint_material_tech,maint.material.tech,model_techstore_maintenance_material,group_techstore_technician,1,1,1,0
