@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- ========== ACCIONES DE SERVIDOR (ir.actions.server) ========== -->
+
+        <!-- Server Action 1: Notificar Retraso -->
+        <record id="action_notificar_retraso" model="ir.actions.server">
+            <field name="name">Notificar Retraso</field>
+            <field name="model_id" ref="model_techstore_mantenimiento"/>
+            <field name="binding_model_id" ref="model_techstore_mantenimiento"/>
+            <field name="state">code</field>
+            <field name="code">
+# Notificar a Jefes Técnicos y Gerentes si hay retraso
+for record in records:
+    if record.esta_retrasado:
+        record._notificar_retraso()
+            </field>
+        </record>
+
+        <!-- Server Action 2: Actualizar Disponibilidad de Técnicos -->
+        <record id="action_actualizar_disponibilidad" model="ir.actions.server">
+            <field name="name">Actualizar Disponibilidad Técnicos</field>
+            <field name="model_id" ref="model_techstore_mantenimiento"/>
+            <field name="state">code</field>
+            <field name="code">
+# Actualizar disponibilidad de técnicos basado en carga de trabajo
+records.actualizar_disponibilidad_tecnicos()
+            </field>
+        </record>
+
+        <!-- Server Action 3: Verificar Recordatorio de Cierre -->
+        <record id="action_recordatorio_cierre" model="ir.actions.server">
+            <field name="name">Verificar Recordatorio de Cierre</field>
+            <field name="model_id" ref="model_techstore_mantenimiento"/>
+            <field name="state">code</field>
+            <field name="code">
+# Verificar órdenes en finalizado por más de 48 horas
+records.verificar_recordatorio_cierre()
+            </field>
+        </record>
+
+        <!-- Server Action 4: Asignar Técnico Automático (Botón) -->
+        <record id="action_asignar_tecnico_automatico" model="ir.actions.server">
+            <field name="name">Asignar Técnico Automático</field>
+            <field name="model_id" ref="model_techstore_mantenimiento"/>
+            <field name="binding_model_id" ref="model_techstore_mantenimiento"/>
+            <field name="state">code</field>
+            <field name="code">
+# Asignar técnico automáticamente basado en carga y especialidad
+for record in records:
+    if not record.ced_tecnico:
+        record.asignar_tecnico_automatico()
+            </field>
+        </record>
+
+        <!-- ========== AUTOMATIZACIONES (base.automation) ========== -->
+
+        <!-- Automatización 1: Enviar email cuando mantenimiento está retrasado -->
+        <record id="automation_notificar_retraso" model="base.automation">
+            <field name="name">Notificar Retraso Automáticamente</field>
+            <field name="model_id" ref="model_techstore_mantenimiento"/>
+            <field name="trigger">on_write</field>
+            <field name="trg_field_ref" ref="field_techstore_mantenimiento_esta_retrasado"/>
+            <field name="condition">record.esta_retrasado == True</field>
+            <field name="action_server_id" ref="action_notificar_retraso"/>
+            <field name="active" eval="True"/>
+            <field name="description">Envía notificación automática cuando un mantenimiento se marca como retrasado</field>
+        </record>
+
+        <!-- Automatización 2: Actualizar disponibilidad de técnicos -->
+        <record id="automation_actualizar_disponibilidad" model="base.automation">
+            <field name="name">Actualizar Disponibilidad de Técnicos</field>
+            <field name="model_id" ref="model_techstore_mantenimiento"/>
+            <field name="trigger">on_write</field>
+            <field name="trg_field_ref" ref="field_techstore_mantenimiento_id_estado"/>
+            <field name="condition">True</field>
+            <field name="action_server_id" ref="action_actualizar_disponibilidad"/>
+            <field name="active" eval="True"/>
+            <field name="description">Actualiza la disponibilidad de técnicos cuando cambia el estado de mantenimiento</field>
+        </record>
+
+        <!-- Automatización 3: Recordatorio de Cierre -->
+        <record id="automation_recordatorio_cierre" model="base.automation">
+            <field name="name">Recordatorio de Cierre (48 horas)</field>
+            <field name="model_id" ref="model_techstore_mantenimiento"/>
+            <field name="trigger">on_write</field>
+            <field name="trg_field_ref" ref="field_techstore_mantenimiento_id_estado"/>
+            <field name="condition">record.id_estado.nombre_estado == 'finalizado'</field>
+            <field name="action_server_id" ref="action_recordatorio_cierre"/>
+            <field name="active" eval="True"/>
+            <field name="description">Envía recordatorio si una orden lleva más de 48 horas en estado finalizado</field>
+        </record>
+    </data>
+</odoo>

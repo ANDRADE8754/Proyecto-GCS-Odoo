@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Plantilla QWeb: Certificado de Entrega -->
+        <template id="report_certificado_entrega">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <!-- Verificar que el estado sea 'entregado' -->
+                            <t t-if="doc.id_estado.nombre_estado != 'entregado'">
+                                <div style="background-color: #f8d7da; border: 2px solid #f5c6cb; border-radius: 4px; padding: 20px; text-align: center;">
+                                    <h2 style="color: #721c24; margin: 0;">
+                                        <i class="fa fa-exclamation-triangle"></i> CERTIFICADO NO DISPONIBLE
+                                    </h2>
+                                    <p style="color: #721c24; font-size: 14px; margin: 10px 0 0 0;">
+                                        Este certificado solo puede generarse cuando el mantenimiento ha sido <strong>ENTREGADO</strong>.
+                                    </p>
+                                    <p style="color: #721c24; font-size: 12px; margin: 10px 0 0 0;">
+                                        Estado actual: <strong t-field="doc.id_estado.nombre_estado"/>
+                                    </p>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <!-- Decoración de Certificado -->
+                                <div style="text-align: center; margin-bottom: 30px;">
+                                    <div style="border: 3px solid #007bff; border-radius: 10px; padding: 20px; display: inline-block; width: 100%;">
+                                        <h1 style="color: #007bff; margin: 0; font-size: 28px; font-weight: bold;">
+                                            <i class="fa fa-certificate"></i> CERTIFICADO DE ENTREGA
+                                        </h1>
+                                        <p style="color: #666; margin: 5px 0 0 0; font-size: 14px;">
+                                            Constancia Oficial de Servicio Completado
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Número y Fecha del Certificado -->
+                                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 30px; text-align: center;">
+                                    <table style="width: 100%;">
+                                        <tr>
+                                            <td style="padding: 10px; border-right: 1px solid #ddd;">
+                                                <p style="margin: 0; font-size: 11px; color: #666;">ORDEN DE MANTENIMIENTO</p>
+                                                <p style="margin: 5px 0 0 0; font-size: 18px; font-weight: bold; color: #dc3545;">
+                                                    <span t-field="doc.id_mantenimiento"/>
+                                                </p>
+                                            </td>
+                                            <td style="padding: 10px; border-right: 1px solid #ddd;">
+                                                <p style="margin: 0; font-size: 11px; color: #666;">FECHA DE ENTREGA</p>
+                                                <p style="margin: 5px 0 0 0; font-size: 16px; font-weight: bold; color: #28a745;">
+                                                    <span t-field="doc.fecha_entrega" t-options="{'widget': 'date'}"/>
+                                                </p>
+                                            </td>
+                                            <td style="padding: 10px;">
+                                                <p style="margin: 0; font-size: 11px; color: #666;">ESTADO</p>
+                                                <p style="margin: 5px 0 0 0; font-size: 14px; font-weight: bold;">
+                                                    <span style="background-color: #28a745; color: white; padding: 4px 10px; border-radius: 3px;">
+                                                        ✓ ENTREGADO
+                                                    </span>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- Sección: Datos del Cliente -->
+                                <div style="margin-bottom: 25px;">
+                                    <h3 style="color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 8px; font-size: 14px;">
+                                        📋 DATOS DEL CLIENTE
+                                    </h3>
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr>
+                                            <td style="padding: 8px; font-weight: bold; width: 20%; background-color: #f8f9fa;">Nombre:</td>
+                                            <td style="padding: 8px; width: 30%;">
+                                                <span t-field="doc.ced_cliente.nombre"/>
+                                            </td>
+                                            <td style="padding: 8px; font-weight: bold; width: 20%; background-color: #f8f9fa;">Cédula:</td>
+                                            <td style="padding: 8px; width: 30%;">
+                                                <span t-field="doc.ced_cliente.ced_cliente"/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td style="padding: 8px; font-weight: bold;">Teléfono:</td>
+                                            <td style="padding: 8px;">
+                                                <span t-field="doc.ced_cliente.telefono"/>
+                                            </td>
+                                            <td style="padding: 8px; font-weight: bold;">Correo:</td>
+                                            <td style="padding: 8px;">
+                                                <span t-field="doc.ced_cliente.correo"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- Sección: Datos del Equipo -->
+                                <div style="margin-bottom: 25px;">
+                                    <h3 style="color: #28a745; border-bottom: 2px solid #28a745; padding-bottom: 8px; font-size: 14px;">
+                                        🖥️ EQUIPO REPARADO
+                                    </h3>
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr>
+                                            <td style="padding: 8px; font-weight: bold; width: 20%; background-color: #f8f9fa;">ID Equipo:</td>
+                                            <td style="padding: 8px; width: 30%;">
+                                                <span t-field="doc.id_equipo.id_equipo" style="font-weight: bold; color: #dc3545;"/>
+                                            </td>
+                                            <td style="padding: 8px; font-weight: bold; width: 20%; background-color: #f8f9fa;">Tipo:</td>
+                                            <td style="padding: 8px; width: 30%;">
+                                                <span t-field="doc.id_equipo.tipo_equipo"/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td style="padding: 8px; font-weight: bold;">Marca/Modelo:</td>
+                                            <td style="padding: 8px;">
+                                                <span t-field="doc.id_equipo.marca"/> / <span t-field="doc.id_equipo.modelo"/>
+                                            </td>
+                                            <td style="padding: 8px; font-weight: bold;">Serial:</td>
+                                            <td style="padding: 8px;">
+                                                <span t-field="doc.id_equipo.serial" style="font-family: monospace;"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- Sección: Descripción del Servicio -->
+                                <div style="margin-bottom: 25px;">
+                                    <h3 style="color: #6f42c1; border-bottom: 2px solid #6f42c1; padding-bottom: 8px; font-size: 14px;">
+                                        🔧 DESCRIPCIÓN DEL SERVICIO PRESTADO
+                                    </h3>
+                                    
+                                    <!-- Falla Reportada -->
+                                    <div style="margin-bottom: 12px;">
+                                        <strong style="font-size: 11px; color: #333;">Problema Reportado:</strong>
+                                        <p style="margin: 4px 0; font-size: 11px; padding: 8px; background-color: #fff3cd; border-left: 4px solid #ffc107; line-height: 1.5;">
+                                            <span t-field="doc.falla_reportada"/>
+                                        </p>
+                                    </div>
+
+                                    <!-- Diagnóstico -->
+                                    <div style="margin-bottom: 12px;">
+                                        <strong style="font-size: 11px; color: #333;">Diagnóstico Técnico:</strong>
+                                        <p style="margin: 4px 0; font-size: 11px; padding: 8px; background-color: #d4edda; border-left: 4px solid #28a745; line-height: 1.5;">
+                                            <span t-field="doc.diagnostico"/>
+                                        </p>
+                                    </div>
+
+                                    <!-- Solución -->
+                                    <div>
+                                        <strong style="font-size: 11px; color: #333;">Solución Implementada:</strong>
+                                        <p style="margin: 4px 0; font-size: 11px; padding: 8px; background-color: #cfe2ff; border-left: 4px solid #0d6efd; line-height: 1.5;">
+                                            <span t-field="doc.solucion"/>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Sección: Cronograma y Técnico -->
+                                <div style="margin-bottom: 25px;">
+                                    <h3 style="color: #17a2b8; border-bottom: 2px solid #17a2b8; padding-bottom: 8px; font-size: 14px;">
+                                        📅 INFORMACIÓN DEL SERVICIO
+                                    </h3>
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr>
+                                            <td style="padding: 8px; font-weight: bold; width: 25%; background-color: #f8f9fa;">Fecha Ingreso:</td>
+                                            <td style="padding: 8px; width: 25%;">
+                                                <span t-field="doc.fecha_ingreso" t-options="{'widget': 'date'}"/>
+                                            </td>
+                                            <td style="padding: 8px; font-weight: bold; width: 25%; background-color: #f8f9fa;">Técnico Asignado:</td>
+                                            <td style="padding: 8px; width: 25%;">
+                                                <t t-if="doc.ced_tecnico">
+                                                    <span t-field="doc.ced_tecnico.nombre"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span style="color: #999;">-</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td style="padding: 8px; font-weight: bold;">Fecha Estimada:</td>
+                                            <td style="padding: 8px;">
+                                                <span t-field="doc.fecha_estimada_entrega" t-options="{'widget': 'date'}"/>
+                                            </td>
+                                            <td style="padding: 8px; font-weight: bold;">Especialidad:</td>
+                                            <td style="padding: 8px;">
+                                                <t t-if="doc.ced_tecnico">
+                                                    <span t-field="doc.ced_tecnico.especialidad"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span style="color: #999;">-</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px; font-weight: bold; background-color: #f8f9fa;">Tiempo Total de Atención:</td>
+                                            <td style="padding: 8px;">
+                                                <t t-if="doc.tiempo_atencion_horas">
+                                                    <span t-field="doc.tiempo_atencion_horas" t-options="{'widget': 'float_time'}"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span>-</span>
+                                                </t>
+                                            </td>
+                                            <td style="padding: 8px; font-weight: bold; background-color: #f8f9fa;">Prioridad:</td>
+                                            <td style="padding: 8px;">
+                                                <span t-field="doc.id_prioridad.nombre" 
+                                                      t-attf-style="background-color: #{doc.id_prioridad.color}; color: white; padding: 2px 6px; border-radius: 2px; font-size: 11px;"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- Sección: Certificación y Firmas -->
+                                <div style="background-color: #f0f0f0; padding: 15px; border-radius: 4px; margin-bottom: 25px; text-align: center; font-size: 11px;">
+                                    <p style="margin: 0; font-weight: bold; color: #333;">CERTIFICACIÓN</p>
+                                    <p style="margin: 8px 0 0 0; color: #666; line-height: 1.6;">
+                                        Por este medio se certifica que el equipo descrito ha sido reparado conforme a los estándares 
+                                        de calidad de TechStore y ha sido entregado en condiciones óptimas de funcionamiento. 
+                                        El cliente reconoce haber recibido el equipo en el estado descrito anteriormente.
+                                    </p>
+                                </div>
+
+                                <!-- Sección: Firmas -->
+                                <div style="margin-top: 40px;">
+                                    <table style="width: 100%; font-size: 11px;">
+                                        <tr style="text-align: center;">
+                                            <td style="padding: 20px; border-top: 1px solid #333; width: 33%;">
+                                                <p style="margin: 0;">___________________________</p>
+                                                <p style="margin: 8px 0 0 0; font-weight: bold;">Cliente / Responsable</p>
+                                                <p style="margin: 4px 0 0 0; color: #666;">Firma y Cédula</p>
+                                                <p style="margin: 4px 0 0 0; color: #999;">Fecha: ___ / ___ / _____</p>
+                                            </td>
+                                            <td style="padding: 20px; border-top: 1px solid #333; width: 33%;">
+                                                <p style="margin: 0;">___________________________</p>
+                                                <t t-if="doc.ced_tecnico">
+                                                    <p style="margin: 8px 0 0 0; font-weight: bold;">
+                                                        <span t-field="doc.ced_tecnico.nombre"/>
+                                                    </p>
+                                                    <p style="margin: 4px 0 0 0; color: #666;">Técnico - <span t-field="doc.ced_tecnico.especialidad"/></p>
+                                                </t>
+                                                <t t-else="">
+                                                    <p style="margin: 8px 0 0 0; font-weight: bold;">Técnico Responsable</p>
+                                                    <p style="margin: 4px 0 0 0; color: #666;">Especialidad: -</p>
+                                                </t>
+                                                <p style="margin: 4px 0 0 0; color: #999;">Fecha: ___ / ___ / _____</p>
+                                            </td>
+                                            <td style="padding: 20px; border-top: 1px solid #333; width: 33%;">
+                                                <p style="margin: 0;">___________________________</p>
+                                                <p style="margin: 8px 0 0 0; font-weight: bold;">Supervisor / Gerente</p>
+                                                <p style="margin: 4px 0 0 0; color: #666;">TechStore</p>
+                                                <p style="margin: 4px 0 0 0; color: #999;">Fecha: ___ / ___ / _____</p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- Pie de página -->
+                                <div style="text-align: center; font-size: 10px; color: #999; margin-top: 40px; padding-top: 20px; border-top: 2px solid #007bff;">
+                                    <p style="margin: 0;">✓ CERTIFICADO DE ENTREGA OFICIAL</p>
+                                    <p style="margin: 0;">TechStore © 2024 - Centro de Mantenimiento Especializado</p>
+                                    <p style="margin: 0;">
+                                        Generado: <t t-value="datetime.datetime.now().strftime('%d/%m/%Y a las %H:%M:%S')"/>
+                                    </p>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

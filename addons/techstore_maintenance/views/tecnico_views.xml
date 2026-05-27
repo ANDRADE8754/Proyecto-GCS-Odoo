@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista Tree para techstore.tecnico -->
+        <record id="view_techstore_tecnico_tree" model="ir.ui.view">
+            <field name="name">techstore.tecnico.tree</field>
+            <field name="model">techstore.tecnico</field>
+            <field name="arch" type="xml">
+                <tree string="Técnicos">
+                    <field name="ced_tecnico"/>
+                    <field name="nombre"/>
+                    <field name="especialidad"/>
+                    <field name="disponibilidad"/>
+                    <field name="carga_trabajo"/>
+                    <field name="telefono"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista Form Profesional para techstore.tecnico -->
+        <record id="view_techstore_tecnico_form" model="ir.ui.view">
+            <field name="name">techstore.tecnico.form</field>
+            <field name="model">techstore.tecnico</field>
+            <field name="arch" type="xml">
+                <form string="Técnico Especializado">
+                    <header>
+                        <button string="Guardar" special="save" class="btn-primary oe_highlight"/>
+                        <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                    </header>
+                    <sheet>
+                        <field name="usuario_id" invisible="1"/>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_mantenimientos_asignados" type="object"
+                                    class="oe_stat_button oe_stat_button_blue" icon="fa-wrench"
+                                    attrs="{'invisible': [('usuario_id', '=', False)]}">
+                                <field name="carga_trabajo" widget="statinfo" string="Mantenimientos Activos"/>
+                            </button>
+                        </div>
+
+                        <div class="alert alert-info" role="alert">
+                            <strong><i class="fa fa-user-check"/> Perfil del Técnico:</strong>
+                            <span class="ml-2">Completa la información personal, credenciales de acceso y especialidad.</span>
+                        </div>
+
+                        <div class="oe_title">
+                            <h1>
+                                <field name="nombre" placeholder="Nombre del técnico" class="oe_inline" style="font-weight: bold;"/>
+                                <span class="badge badge-primary ml-2">
+                                    <field name="especialidad" readonly="1" class="oe_inline"/>
+                                </span>
+                            </h1>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h3 style="border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                                    <i class="fa fa-id-card"/> Datos Personales
+                                </h3>
+                                <group>
+                                    <field name="ced_tecnico" required="1" options="{'no_create': True}"/>
+                                    <field name="especialidad" required="1" options="{'no_create': True}"
+                                           placeholder="Ej. Hardware, Software, Redes"/>
+                                    <field name="telefono" widget="phone"/>
+                                    <field name="correo" placeholder="correo@empresa.com"/>
+                                </group>
+                            </div>
+                            <div class="col-md-6">
+                                <h3 style="border-bottom: 2px solid #28a745; padding-bottom: 10px;">
+                                    <i class="fa fa-chart-bar"/> Acceso al Sistema
+                                </h3>
+                                <group>
+                                    <field name="contrasena" widget="password" placeholder="Contraseña inicial"/>
+                                    <field name="usuario_id" readonly="1"/>
+                                    <field name="disponibilidad" required="1"/>
+                                    <field name="carga_trabajo" readonly="1"
+                                           decoration-success="carga_trabajo &lt; 3"
+                                           decoration-warning="carga_trabajo &gt;= 3 and carga_trabajo &lt;= 5"
+                                           decoration-danger="carga_trabajo &gt; 5"/>
+                                    <field name="color_kanban" invisible="1"/>
+                                </group>
+                            </div>
+                        </div>
+
+                        <!-- Tabs -->
+                        <notebook class="mt-4">
+                            <!-- Mantenimientos Activos -->
+                            <page string="🔧 Mantenimientos Activos" name="mantenimientos_activos">
+                                <separator string="Órdenes de Trabajo Asignadas"/>
+                                <field name="mantenimiento_ids" nolabel="1" readonly="1"
+                                       domain="[('es_estado_final', '=', False)]">
+                                    <tree string="Mantenimientos Activos" create="false" edit="false">
+                                        <field name="id_mantenimiento"/>
+                                        <field name="ced_cliente"/>
+                                        <field name="id_equipo"/>
+                                        <field name="id_estado"/>
+                                        <field name="id_prioridad"/>
+                                        <field name="fecha_ingreso"/>
+                                        <field name="fecha_estimada_entrega"/>
+                                        <field name="esta_retrasado" optional="hide"/>
+                                    </tree>
+                                </field>
+                            </page>
+
+                            <!-- Historial Completo -->
+                            <page string="📜 Historial Completo" name="mantenimientos_todos">
+                                <separator string="Todos los Mantenimientos Asignados"/>
+                                <field name="mantenimiento_ids" nolabel="1" readonly="1">
+                                    <tree string="Historial de Mantenimientos" create="false" edit="false">
+                                        <field name="id_mantenimiento"/>
+                                        <field name="ced_cliente"/>
+                                        <field name="id_equipo"/>
+                                        <field name="id_estado"/>
+                                        <field name="fecha_ingreso"/>
+                                        <field name="fecha_entrega" optional="hide"/>
+                                        <field name="tiempo_atencion_horas" optional="hide"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista Kanban para techstore.tecnico - Simplificada para Odoo 17 -->
+        <record id="view_techstore_tecnico_kanban" model="ir.ui.view">
+            <field name="name">techstore.tecnico.kanban</field>
+            <field name="model">techstore.tecnico</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="especialidad" class="o_kanban_small_column">
+                    <field name="color_kanban"/>
+                    <field name="nombre"/>
+                    <field name="ced_tecnico"/>
+                    <field name="especialidad"/>
+                    <field name="telefono"/>
+                    <field name="carga_trabajo"/>
+                    <field name="disponibilidad"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="oe_kanban_card oe_kanban_global_click"
+                                 t-attf-style="border-left: 5px solid #{['green', 'orange', 'red'][record.color_kanban.raw_value - 1]};">
+                                <div class="oe_kanban_details">
+                                    <h4 class="o_kanban_record_title">
+                                        <field name="nombre"/>
+                                    </h4>
+                                    <div class="o_kanban_record_body">
+                                        <p>
+                                            <strong>Cédula:</strong> <field name="ced_tecnico"/>
+                                        </p>
+                                        <p>
+                                            <strong>Especialidad:</strong> <field name="especialidad"/>
+                                        </p>
+                                        <p>
+                                            <strong>Teléfono:</strong> <field name="telefono"/>
+                                        </p>
+                                        <hr/>
+                                        <p t-attf-style="color: #{['green', 'orange', 'red'][record.color_kanban.raw_value - 1]};">
+                                            <strong>Carga de Trabajo:</strong> <field name="carga_trabajo"/> tareas
+                                        </p>
+                                        <p t-if="record.disponibilidad.raw_value"><span class="badge badge-success">Disponible</span></p>
+                                        <p t-if="not record.disponibilidad.raw_value"><span class="badge badge-danger">No Disponible</span></p>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_footer">
+                                    <button type="object" name="action_view_mantenimientos_asignados"
+                                            class="oe_kanban_action oe_kanban_action_a" string="Ver Tareas">
+                                        <i class="fa fa-list"/> Ver Tareas
+                                    </button>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Vista Search para techstore.tecnico -->
+        <record id="view_techstore_tecnico_search" model="ir.ui.view">
+            <field name="name">techstore.tecnico.search</field>
+            <field name="model">techstore.tecnico</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Técnicos">
+                    <field name="ced_tecnico" filter_domain="[('ced_tecnico', 'ilike', self)]"/>
+                    <field name="nombre" filter_domain="[('nombre', 'ilike', self)]"/>
+                    <field name="especialidad" filter_domain="[('especialidad', 'ilike', self)]"/>
+                    <field name="telefono" filter_domain="[('telefono', 'ilike', self)]"/>
+                    <separator/>
+                    <filter name="filter_disponible" string="Disponibles"
+                            domain="[('disponibilidad', '=', True)]"/>
+                    <filter name="filter_no_disponible" string="No Disponibles"
+                            domain="[('disponibilidad', '=', False)]"/>
+                    <separator/>
+                    <filter name="filter_sin_carga" string="Sin Carga de Trabajo"
+                            domain="[('carga_trabajo', '=', 0)]"/>
+                    <filter name="filter_carga_media" string="Carga Media"
+                            domain="[('carga_trabajo', '>=', 3), ('carga_trabajo', '&lt;=', 5)]"/>
+                    <filter name="filter_carga_alta" string="Carga Alta"
+                            domain="[('carga_trabajo', '&gt;', 5)]"/>
+                    <separator/>
+                    <group expand="0" string="Agrupar por">
+                        <filter name="group_by_especialidad" string="Especialidad"
+                                context="{'group_by': 'especialidad'}"/>
+                        <filter name="group_by_disponibilidad" string="Disponibilidad"
+                                context="{'group_by': 'disponibilidad'}"/>
+                        <filter name="group_by_carga" string="Carga de Trabajo"
+                                context="{'group_by': 'carga_trabajo'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción para abrir la lista de técnicos (completa: kanban, tree, form) -->
+        <record id="action_techstore_tecnico" model="ir.actions.act_window">
+            <field name="name">Técnicos</field>
+            <field name="res_model">techstore.tecnico</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="search_view_id" ref="view_techstore_tecnico_search"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click para registrar un nuevo técnico.
+                </p>
+            </field>
+        </record>
+
+        <!-- Acción de solo lista para Recepcionistas (sin vista form) -->
+        <record id="action_techstore_tecnico_readonly" model="ir.actions.act_window">
+            <field name="name">Técnicos</field>
+            <field name="res_model">techstore.tecnico</field>
+            <field name="view_mode">kanban,tree</field>
+            <field name="search_view_id" ref="view_techstore_tecnico_search"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Lista de técnicos (solo lectura para recepcionistas).
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

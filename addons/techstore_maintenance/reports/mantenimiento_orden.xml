@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Plantilla QWeb: Orden de Mantenimiento -->
+        <template id="report_mantenimiento_orden">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <!-- Encabezado -->
+                            <div class="row mb-4 pb-3" style="border-bottom: 3px solid #007bff;">
+                                <div class="col-8">
+                                    <h1 class="text-primary" style="font-weight: bold; margin: 0;">
+                                        <i class="fa fa-wrench"></i> ORDEN DE MANTENIMIENTO
+                                    </h1>
+                                    <p class="text-muted">TechStore - Centro de Mantenimiento Especializado</p>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <div style="font-size: 14px; line-height: 1.8;">
+                                        <strong style="color: #007bff;">Orden:</strong>
+                                        <span t-field="doc.id_mantenimiento" style="font-size: 18px; font-weight: bold; color: #dc3545;"/>
+                                        <br/>
+                                        <strong>Fecha de Ingreso:</strong>
+                                        <span t-field="doc.fecha_ingreso" t-options="{'widget': 'date'}"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Información del Cliente -->
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <h4 style="color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 8px;">
+                                        📋 Información del Cliente
+                                    </h4>
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr>
+                                            <td style="padding: 4px; font-weight: bold; width: 40%;">Cédula:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.ced_cliente.ced_cliente"/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td style="padding: 4px; font-weight: bold;">Nombre:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.ced_cliente.nombre"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 4px; font-weight: bold;">Teléfono:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.ced_cliente.telefono"/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td style="padding: 4px; font-weight: bold;">Correo:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.ced_cliente.correo"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 4px; font-weight: bold;">Dirección:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.ced_cliente.direccion"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- Información del Equipo -->
+                                <div class="col-6">
+                                    <h4 style="color: #28a745; border-bottom: 2px solid #28a745; padding-bottom: 8px;">
+                                        🖥️ Equipo a Reparar
+                                    </h4>
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr>
+                                            <td style="padding: 4px; font-weight: bold; width: 40%;">ID Equipo:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.id_equipo.id_equipo"/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td style="padding: 4px; font-weight: bold;">Tipo:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.id_equipo.tipo_equipo"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 4px; font-weight: bold;">Marca:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.id_equipo.marca"/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td style="padding: 4px; font-weight: bold;">Modelo:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.id_equipo.modelo"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 4px; font-weight: bold;">Serial:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.id_equipo.serial"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Descripción del Problema -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h4 style="color: #dc3545; border-bottom: 2px solid #dc3545; padding-bottom: 8px;">
+                                        ⚠️ Falla Reportada
+                                    </h4>
+                                    <div style="background-color: #fff3cd; padding: 12px; border-left: 4px solid #ffc107; font-size: 12px; line-height: 1.6;">
+                                        <p t-field="doc.falla_reportada"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Información de Asignación y Cronograma -->
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <h4 style="color: #6f42c1; border-bottom: 2px solid #6f42c1; padding-bottom: 8px;">
+                                        👤 Asignación
+                                    </h4>
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr>
+                                            <td style="padding: 4px; font-weight: bold; width: 50%;">Técnico Asignado:</td>
+                                            <td style="padding: 4px;">
+                                                <t t-if="doc.ced_tecnico">
+                                                    <span t-field="doc.ced_tecnico.nombre"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span style="color: #999;">Por asignar</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td style="padding: 4px; font-weight: bold;">Especialidad:</td>
+                                            <td style="padding: 4px;">
+                                                <t t-if="doc.ced_tecnico">
+                                                    <span t-field="doc.ced_tecnico.especialidad"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <span style="color: #999;">-</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 4px; font-weight: bold;">Prioridad:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.id_prioridad.nombre" 
+                                                      t-attf-style="background-color: #{doc.id_prioridad.color}; color: white; padding: 4px 8px; border-radius: 3px; font-weight: bold;"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <div class="col-6">
+                                    <h4 style="color: #17a2b8; border-bottom: 2px solid #17a2b8; padding-bottom: 8px;">
+                                        📅 Cronograma
+                                    </h4>
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr>
+                                            <td style="padding: 4px; font-weight: bold; width: 50%;">Fecha Ingreso:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.fecha_ingreso" t-options="{'widget': 'date'}"/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td style="padding: 4px; font-weight: bold;">Fecha Est. Entrega:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.fecha_estimada_entrega" t-options="{'widget': 'date'}"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 4px; font-weight: bold;">Estado Actual:</td>
+                                            <td style="padding: 4px;">
+                                                <span t-field="doc.id_estado.nombre_estado" 
+                                                      t-attf-style="background-color: #{doc.id_prioridad.color}33; padding: 4px 8px; border-radius: 3px; font-weight: bold;"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Notas Adicionales -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <div style="background-color: #f0f0f0; padding: 12px; border-radius: 4px; font-size: 11px; line-height: 1.5;">
+                                        <p style="margin: 0; font-weight: bold; color: #333;">Observaciones:</p>
+                                        <p style="margin: 5px 0 0 0; color: #666;">
+                                            Esta orden fue creada el <span t-field="doc.fecha_ingreso" t-options="{'widget': 'datetime'}"/> 
+                                            y será procesada conforme a los tiempos establecidos según la prioridad indicada.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Firma -->
+                            <div class="row mt-5">
+                                <div class="col-6" style="text-align: center; font-size: 11px;">
+                                    <p style="margin: 0;">___________________________</p>
+                                    <p style="margin: 0; font-weight: bold;">Recibido por Cliente</p>
+                                    <p style="margin: 0; color: #666;">(Firma y Fecha)</p>
+                                </div>
+                                <div class="col-6" style="text-align: center; font-size: 11px;">
+                                    <p style="margin: 0;">___________________________</p>
+                                    <p style="margin: 0; font-weight: bold;">Recibido por Técnico</p>
+                                    <p style="margin: 0; color: #666;">(Firma y Fecha)</p>
+                                </div>
+                            </div>
+
+                            <!-- Pie de página -->
+                            <div style="text-align: center; font-size: 10px; color: #999; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd;">
+                                <p style="margin: 0;">TechStore © 2024 - Centro de Mantenimiento Especializado</p>
+                                <p style="margin: 0;">Generado automáticamente desde el Sistema de Gestión</p>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

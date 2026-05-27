@@ -131,8 +131,9 @@ services:
         pg_dump -h db -U odoo -d "$$DB_NAME" -F c -f /backups/db_demo.dump
 
         echo "Copiando filestore..."
-        rm -rf /backups/filestore/$$DB_NAME
         mkdir -p /backups/filestore/$$DB_NAME
+        chmod -R u+rwX /backups/filestore/$$DB_NAME 2>/dev/null || true
+        find /backups/filestore/$$DB_NAME -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
 
         if [ -d /var/lib/odoo/filestore/$$DB_NAME ]; then
           cp -a /var/lib/odoo/filestore/$$DB_NAME/. /backups/filestore/$$DB_NAME/

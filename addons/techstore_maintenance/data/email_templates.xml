@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- ========== PLANTILLAS DE EMAIL ========== -->
+
+        <!-- Plantilla: Notificación de Mantenimiento Retrasado -->
+        <record id="email_template_retraso" model="mail.template">
+            <field name="name">Mantenimiento Retrasado - Notificación</field>
+            <field name="model_id" ref="model_techstore_mantenimiento"/>
+            <field name="subject">⚠️ ALERTA: Orden de Mantenimiento Retrasada - ${object.id_mantenimiento}</field>
+            <field name="email_from">${(object.env.user.company_id.email_formatted or 'noreply@techstore.com')}</field>
+            <field name="reply_to">${object.env.user.email_formatted}</field>
+            <field name="body_html" type="html">
+                <div style="background-color: #fff3cd; border: 2px solid #ffc107; padding: 20px; border-radius: 8px; font-family: Arial;">
+                    <h2 style="color: #cc6600; margin-top: 0;">
+                        ⚠️ ALERTA DE RETRASO EN MANTENIMIENTO
+                    </h2>
+
+                    <p style="color: #333; line-height: 1.6;">
+                        Una orden de mantenimiento ha superado su fecha estimada de entrega.
+                    </p>
+
+                    <div style="background-color: white; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 8px; font-weight: bold; width: 30%; border-bottom: 1px solid #eee;">
+                                    Orden:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    <span style="font-weight: bold; color: #dc3545;">
+                                        ${object.id_mantenimiento}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr style="background-color: #f8f9fa;">
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Cliente:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    ${object.ced_cliente.nombre}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Equipo:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    ${object.id_equipo.id_equipo} (${object.id_equipo.tipo_equipo})
+                                </td>
+                            </tr>
+                            <tr style="background-color: #f8f9fa;">
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Prioridad:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    <span style="background-color: ${object.id_prioridad.color}; color: white; padding: 4px 8px; border-radius: 3px; font-weight: bold;">
+                                        ${object.id_prioridad.nombre}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Fecha Ingreso:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    ${object.fecha_ingreso.strftime('%d/%m/%Y %H:%M')}
+                                </td>
+                            </tr>
+                            <tr style="background-color: #f8f9fa;">
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Fecha Estimada:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    <span style="color: #dc3545; font-weight: bold;">
+                                        ${object.fecha_estimada_entrega.strftime('%d/%m/%Y %H:%M')}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Técnico Asignado:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    % if object.ced_tecnico:
+                                        ${object.ced_tecnico.nombre}
+                                    % else:
+                                        <span style="color: #dc3545;">SIN ASIGNAR</span>
+                                    % endif
+                                </td>
+                            </tr>
+                            <tr style="background-color: #f8f9fa;">
+                                <td style="padding: 8px; font-weight: bold;">
+                                    Estado:
+                                </td>
+                                <td style="padding: 8px;">
+                                    ${object.id_estado.nombre_estado}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <p style="color: #666; background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 15px 0;">
+                        <strong>⚡ ACCIÓN REQUERIDA:</strong> Por favor, verifique y actualice el estado de esta orden de mantenimiento de forma urgente.
+                    </p>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <a href="${object.env['ir.config_parameter'].sudo().get_param('web.base.url')}/web#id=${object.id}&amp;model=techstore.mantenimiento&amp;view_type=form" 
+                           style="display: inline-block; background-color: #dc3545; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                            Ver Orden de Mantenimiento
+                        </a>
+                    </div>
+
+                    <p style="color: #999; font-size: 12px; margin-top: 20px;">
+                        Este es un email automático del Sistema de Gestión de Mantenimientos TechStore.
+                        Por favor, no responda a este correo.
+                    </p>
+                </div>
+            </field>
+        </record>
+
+        <!-- Plantilla: Recordatorio de Cierre (48 horas en finalizado) -->
+        <record id="email_template_recordatorio_cierre" model="mail.template">
+            <field name="name">Recordatorio de Cierre de Mantenimiento</field>
+            <field name="model_id" ref="model_techstore_mantenimiento"/>
+            <field name="subject">📋 RECORDATORIO: Cerrar Orden de Mantenimiento ${object.id_mantenimiento}</field>
+            <field name="email_from">${(object.env.user.company_id.email_formatted or 'noreply@techstore.com')}</field>
+            <field name="reply_to">${object.env.user.email_formatted}</field>
+            <field name="body_html" type="html">
+                <div style="background-color: #e3f2fd; border: 2px solid #2196F3; padding: 20px; border-radius: 8px; font-family: Arial;">
+                    <h2 style="color: #1976d2; margin-top: 0;">
+                        📋 RECORDATORIO: Cerrar Orden de Mantenimiento
+                    </h2>
+
+                    <p style="color: #333; line-height: 1.6;">
+                        Una orden de mantenimiento ha estado en estado <strong>"Finalizado"</strong> por más de 48 horas 
+                        sin ser entregada. Se requiere acción para completar el proceso.
+                    </p>
+
+                    <div style="background-color: white; border-left: 4px solid #2196F3; padding: 15px; margin: 15px 0;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 8px; font-weight: bold; width: 30%; border-bottom: 1px solid #eee;">
+                                    Orden:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    <span style="font-weight: bold; color: #1976d2;">
+                                        ${object.id_mantenimiento}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr style="background-color: #f8f9fa;">
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Cliente:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    ${object.ced_cliente.nombre}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Equipo:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    ${object.id_equipo.id_equipo}
+                                </td>
+                            </tr>
+                            <tr style="background-color: #f8f9fa;">
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Estado Actual:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    <span style="background-color: #ffc107; color: white; padding: 4px 8px; border-radius: 3px; font-weight: bold;">
+                                        FINALIZADO (Pendiente entrega)
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Tiempo en Finalizado:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    <span style="color: #d32f2f; font-weight: bold;">Más de 48 horas</span>
+                                </td>
+                            </tr>
+                            <tr style="background-color: #f8f9fa;">
+                                <td style="padding: 8px; font-weight: bold;">
+                                    Acciones Pendientes:
+                                </td>
+                                <td style="padding: 8px;">
+                                    1. Verificar que el equipo está listo
+                                    <br/>2. Contactar al cliente para entrega
+                                    <br/>3. Registrar fecha de entrega en el sistema
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <p style="color: #666; background-color: #e3f2fd; border-left: 4px solid #2196F3; padding: 12px; margin: 15px 0;">
+                        <strong>📌 NOTA:</strong> Recuerde actualizar el estado a <strong>"ENTREGADO"</strong> una vez que el cliente haya recibido el equipo.
+                    </p>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <a href="${object.env['ir.config_parameter'].sudo().get_param('web.base.url')}/web#id=${object.id}&amp;model=techstore.mantenimiento&amp;view_type=form" 
+                           style="display: inline-block; background-color: #2196F3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                            Ir a la Orden
+                        </a>
+                    </div>
+
+                    <p style="color: #999; font-size: 12px; margin-top: 20px;">
+                        Este es un email automático del Sistema de Gestión de Mantenimientos TechStore.
+                    </p>
+                </div>
+            </field>
+        </record>
+
+        <!-- Plantilla: Notificación de Asignación de Técnico -->
+        <record id="email_template_asignacion_tecnico" model="mail.template">
+            <field name="name">Nuevo Mantenimiento Asignado a Técnico</field>
+            <field name="model_id" ref="model_techstore_mantenimiento"/>
+            <field name="subject">🔧 Nueva Orden de Mantenimiento Asignada: ${object.id_mantenimiento}</field>
+            <field name="email_from">${(object.env.user.company_id.email_formatted or 'noreply@techstore.com')}</field>
+            <field name="reply_to">${object.env.user.email_formatted}</field>
+            <field name="body_html" type="html">
+                <div style="background-color: #c8e6c9; border: 2px solid #4caf50; padding: 20px; border-radius: 8px; font-family: Arial;">
+                    <h2 style="color: #2e7d32; margin-top: 0;">
+                        🔧 NUEVA ORDEN DE MANTENIMIENTO ASIGNADA
+                    </h2>
+
+                    <p style="color: #333; line-height: 1.6;">
+                        Estimado/a <strong>${object.ced_tecnico.nombre}</strong>, se le ha asignado una nueva orden de mantenimiento.
+                    </p>
+
+                    <div style="background-color: white; border-left: 4px solid #4caf50; padding: 15px; margin: 15px 0;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 8px; font-weight: bold; width: 30%; border-bottom: 1px solid #eee;">
+                                    Orden:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    <span style="font-weight: bold; color: #2e7d32;">
+                                        ${object.id_mantenimiento}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr style="background-color: #f8f9fa;">
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Cliente:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    ${object.ced_cliente.nombre}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Equipo:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    ${object.id_equipo.id_equipo} (${object.id_equipo.tipo_equipo})
+                                </td>
+                            </tr>
+                            <tr style="background-color: #f8f9fa;">
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Prioridad:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    <span style="background-color: ${object.id_prioridad.color}; color: white; padding: 4px 8px; border-radius: 3px; font-weight: bold;">
+                                        ${object.id_prioridad.nombre}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Falla Reportada:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    ${object.falla_reportada[:100]}...
+                                </td>
+                            </tr>
+                            <tr style="background-color: #f8f9fa;">
+                                <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
+                                    Fecha Estimada:
+                                </td>
+                                <td style="padding: 8px; border-bottom: 1px solid #eee;">
+                                    ${object.fecha_estimada_entrega.strftime('%d/%m/%Y %H:%M')}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <p style="color: #666; background-color: #c8e6c9; border-left: 4px solid #4caf50; padding: 12px; margin: 15px 0;">
+                        <strong>✓ ACCIÓN:</strong> Por favor ingrese al sistema para ver los detalles completos de la orden y comenzar el trabajo.
+                    </p>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <a href="${object.env['ir.config_parameter'].sudo().get_param('web.base.url')}/web#id=${object.id}&amp;model=techstore.mantenimiento&amp;view_type=form" 
+                           style="display: inline-block; background-color: #4caf50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                            Ver Orden de Mantenimiento
+                        </a>
+                    </div>
+
+                    <p style="color: #999; font-size: 12px; margin-top: 20px;">
+                        Sistema de Gestión de Mantenimientos TechStore
+                    </p>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

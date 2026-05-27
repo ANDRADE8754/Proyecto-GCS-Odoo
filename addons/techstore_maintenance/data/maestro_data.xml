@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Menú de Configuración -->
+        <menuitem id="menu_techstore_settings" name="Configuración" parent="menu_techstore_maintenance"
+                  sequence="100"/>
+
+        <!-- Registros de Estados -->
+        <record id="techstore_estado_nuevo" model="techstore.estado">
+            <field name="id_estado">EST-001</field>
+            <field name="nombre_estado">nuevo</field>
+            <field name="secuencia">10</field>
+        </record>
+
+        <record id="techstore_estado_diagnostico" model="techstore.estado">
+            <field name="id_estado">EST-002</field>
+            <field name="nombre_estado">diagnostico</field>
+            <field name="secuencia">20</field>
+        </record>
+
+        <record id="techstore_estado_reparacion" model="techstore.estado">
+            <field name="id_estado">EST-003</field>
+            <field name="nombre_estado">reparacion</field>
+            <field name="secuencia">30</field>
+        </record>
+
+        <record id="techstore_estado_esperando_repuestos" model="techstore.estado">
+            <field name="id_estado">EST-004</field>
+            <field name="nombre_estado">esperando_repuestos</field>
+            <field name="secuencia">40</field>
+        </record>
+
+        <record id="techstore_estado_finalizado" model="techstore.estado">
+            <field name="id_estado">EST-005</field>
+            <field name="nombre_estado">finalizado</field>
+            <field name="secuencia">50</field>
+        </record>
+
+        <record id="techstore_estado_entregado" model="techstore.estado">
+            <field name="id_estado">EST-006</field>
+            <field name="nombre_estado">entregado</field>
+            <field name="secuencia">60</field>
+        </record>
+
+        <!-- Registros de Prioridades -->
+        <record id="techstore_prioridad_baja" model="techstore.prioridad">
+            <field name="id_prioridad">PRI-001</field>
+            <field name="nombre">baja</field>
+            <field name="tiempo_maximo">72</field>
+            <field name="color">#00b800</field>
+        </record>
+
+        <record id="techstore_prioridad_media" model="techstore.prioridad">
+            <field name="id_prioridad">PRI-002</field>
+            <field name="nombre">media</field>
+            <field name="tiempo_maximo">48</field>
+            <field name="color">#ffb800</field>
+        </record>
+
+        <record id="techstore_prioridad_alta" model="techstore.prioridad">
+            <field name="id_prioridad">PRI-003</field>
+            <field name="nombre">alta</field>
+            <field name="tiempo_maximo">24</field>
+            <field name="color">#ff6600</field>
+        </record>
+
+        <record id="techstore_prioridad_critica" model="techstore.prioridad">
+            <field name="id_prioridad">PRI-004</field>
+            <field name="nombre">critica</field>
+            <field name="tiempo_maximo">4</field>
+            <field name="color">#ff0000</field>
+        </record>
+    </data>
+</odoo>

@@ -1,3 +1,6 @@
-# techstore_maintenance/models/__init__.py
-from . import maintenance_order
-from . import equipment_ext
+from . import cliente
+from . import equipo
+from . import tecnico
+from . import estado
+from . import prioridad
+from . import mantenimiento

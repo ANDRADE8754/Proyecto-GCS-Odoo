@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Plantilla QWeb: Historial Técnico de Equipo -->
+        <template id="report_equipo_historial">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <!-- Encabezado -->
+                            <div class="row mb-4 pb-3" style="border-bottom: 3px solid #007bff;">
+                                <div class="col-8">
+                                    <h1 class="text-primary" style="font-weight: bold; margin: 0;">
+                                        <i class="fa fa-history"></i> HISTORIAL TÉCNICO DE EQUIPO
+                                    </h1>
+                                    <p class="text-muted">Registro completo de intervenciones y mantenimientos</p>
+                                </div>
+                                <div class="col-4 text-right">
+                                    <div style="font-size: 14px; line-height: 1.8;">
+                                        <strong style="color: #007bff;">Fecha Reporte:</strong>
+                                        <span style="font-weight: bold;">
+                                            <t t-value="datetime.datetime.now().strftime('%d/%m/%Y')"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Información del Equipo -->
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <h4 style="color: #28a745; border-bottom: 2px solid #28a745; padding-bottom: 8px;">
+                                        🖥️ Datos del Equipo
+                                    </h4>
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr>
+                                            <td style="padding: 6px; font-weight: bold; width: 40%; background-color: #f8f9fa;">ID Equipo:</td>
+                                            <td style="padding: 6px;">
+                                                <span t-field="doc.id_equipo" style="font-weight: bold; color: #dc3545;"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px; font-weight: bold; background-color: #f8f9fa;">Tipo:</td>
+                                            <td style="padding: 6px;">
+                                                <span t-field="doc.tipo_equipo"/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td style="padding: 6px; font-weight: bold;">Marca / Modelo:</td>
+                                            <td style="padding: 6px;">
+                                                <span t-field="doc.marca"/> / <span t-field="doc.modelo"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px; font-weight: bold; background-color: #f8f9fa;">Serial:</td>
+                                            <td style="padding: 6px;">
+                                                <span t-field="doc.serial" style="font-family: monospace;"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- Información del Cliente -->
+                                <div class="col-6">
+                                    <h4 style="color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 8px;">
+                                        👤 Cliente Propietario
+                                    </h4>
+                                    <table style="width: 100%; font-size: 12px;">
+                                        <tr>
+                                            <td style="padding: 6px; font-weight: bold; width: 40%; background-color: #f8f9fa;">Nombre:</td>
+                                            <td style="padding: 6px;">
+                                                <span t-field="doc.ced_cliente.nombre"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px; font-weight: bold; background-color: #f8f9fa;">Cédula:</td>
+                                            <td style="padding: 6px;">
+                                                <span t-field="doc.ced_cliente.ced_cliente"/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <td style="padding: 6px; font-weight: bold;">Teléfono:</td>
+                                            <td style="padding: 6px;">
+                                                <span t-field="doc.ced_cliente.telefono"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 6px; font-weight: bold; background-color: #f8f9fa;">Correo:</td>
+                                            <td style="padding: 6px;">
+                                                <span t-field="doc.ced_cliente.correo"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Resumen de Intervenciones -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h4 style="color: #6f42c1; border-bottom: 2px solid #6f42c1; padding-bottom: 8px;">
+                                        📊 Resumen de Intervenciones
+                                    </h4>
+                                    <div style="display: flex; gap: 20px; justify-content: space-around; background-color: #f8f9fa; padding: 15px; border-radius: 4px;">
+                                        <div style="text-align: center;">
+                                            <p style="margin: 0; font-size: 24px; font-weight: bold; color: #007bff;">
+                                                <t t-value="len([m for m in doc.mantenimiento_ids if m.id_estado.es_estado_final])"/>
+                                            </p>
+                                            <p style="margin: 0; font-size: 12px; color: #666;">Mantenimientos Completados</p>
+                                        </div>
+                                        <div style="text-align: center;">
+                                            <p style="margin: 0; font-size: 24px; font-weight: bold; color: #28a745;">
+                                                <t t-value="len([m for m in doc.mantenimiento_ids if not m.id_estado.es_estado_final])"/>
+                                            </p>
+                                            <p style="margin: 0; font-size: 12px; color: #666;">En Proceso</p>
+                                        </div>
+                                        <div style="text-align: center;">
+                                            <p style="margin: 0; font-size: 24px; font-weight: bold; color: #dc3545;">
+                                                <t t-value="len([m for m in doc.mantenimiento_ids if m.esta_retrasado])"/>
+                                            </p>
+                                            <p style="margin: 0; font-size: 12px; color: #666;">Retrasados</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Historial Detallado -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h4 style="color: #17a2b8; border-bottom: 2px solid #17a2b8; padding-bottom: 8px;">
+                                        🔧 Detalle de Mantenimientos
+                                    </h4>
+                                    
+                                    <t t-foreach="doc.mantenimiento_ids" t-as="mnt">
+                                        <div style="background-color: white; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px; padding: 12px;">
+                                            <!-- Encabezado de la intervención -->
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0;">
+                                                <div>
+                                                    <span style="font-weight: bold; font-size: 13px; color: #333;">
+                                                        Orden: <span t-field="mnt.id_mantenimiento" style="color: #dc3545;"/>
+                                                    </span>
+                                                    <span style="margin-left: 20px; font-size: 12px; color: #666;">
+                                                        <strong>Fecha:</strong> <span t-field="mnt.fecha_ingreso" t-options="{'widget': 'date'}"/>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span t-field="mnt.id_estado.nombre_estado" 
+                                                          t-attf-style="background-color: #{mnt.id_prioridad.color}; color: white; padding: 4px 10px; border-radius: 3px; font-weight: bold; font-size: 11px;"/>
+                                                </div>
+                                            </div>
+
+                                            <!-- Información de la intervención -->
+                                            <table style="width: 100%; font-size: 11px; margin-bottom: 10px;">
+                                                <tr>
+                                                    <td style="padding: 4px; font-weight: bold; width: 25%; background-color: #f8f9fa;">Técnico:</td>
+                                                    <td style="padding: 4px; width: 25%;">
+                                                        <t t-if="mnt.ced_tecnico">
+                                                            <span t-field="mnt.ced_tecnico.nombre"/>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span style="color: #999;">-</span>
+                                                        </t>
+                                                    </td>
+                                                    <td style="padding: 4px; font-weight: bold; width: 25%; background-color: #f8f9fa;">Prioridad:</td>
+                                                    <td style="padding: 4px; width: 25%;">
+                                                        <span t-field="mnt.id_prioridad.nombre"/>
+                                                    </td>
+                                                </tr>
+                                                <tr style="background-color: #f8f9fa;">
+                                                    <td style="padding: 4px; font-weight: bold;">Tiempo de Atención:</td>
+                                                    <td style="padding: 4px;">
+                                                        <t t-if="mnt.tiempo_atencion_horas">
+                                                            <span t-field="mnt.tiempo_atencion_horas" t-options="{'widget': 'float_time'}"/>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span style="color: #999;">En progreso</span>
+                                                        </t>
+                                                    </td>
+                                                    <td style="padding: 4px; font-weight: bold;">Entrega:</td>
+                                                    <td style="padding: 4px;">
+                                                        <t t-if="mnt.fecha_entrega">
+                                                            <span t-field="mnt.fecha_entrega" t-options="{'widget': 'date'}"/>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span style="color: #999;">Pendiente</span>
+                                                        </t>
+                                                    </td>
+                                                </tr>
+                                            </table>
+
+                                            <!-- Falla Reportada -->
+                                            <div style="margin-bottom: 8px;">
+                                                <strong style="font-size: 11px; color: #333;">Falla Reportada:</strong>
+                                                <p style="margin: 4px 0; font-size: 11px; padding: 6px; background-color: #fff3cd; border-left: 3px solid #ffc107;">
+                                                    <t t-if="mnt.falla_reportada">
+                                                        <span t-field="mnt.falla_reportada"/>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span style="color: #999;">-</span>
+                                                    </t>
+                                                </p>
+                                            </div>
+
+                                            <!-- Diagnóstico -->
+                                            <div style="margin-bottom: 8px;">
+                                                <strong style="font-size: 11px; color: #333;">Diagnóstico Técnico:</strong>
+                                                <p style="margin: 4px 0; font-size: 11px; padding: 6px; background-color: #d4edda; border-left: 3px solid #28a745;">
+                                                    <t t-if="mnt.diagnostico">
+                                                        <span t-field="mnt.diagnostico"/>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span style="color: #999;">Pendiente de diagnóstico</span>
+                                                    </t>
+                                                </p>
+                                            </div>
+
+                                            <!-- Solución -->
+                                            <div>
+                                                <strong style="font-size: 11px; color: #333;">Solución Implementada:</strong>
+                                                <p style="margin: 4px 0; font-size: 11px; padding: 6px; background-color: #cfe2ff; border-left: 3px solid #0d6efd;">
+                                                    <t t-if="mnt.solucion">
+                                                        <span t-field="mnt.solucion"/>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span style="color: #999;">No registrada</span>
+                                                    </t>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </t>
+
+                                    <!-- Si no hay mantenimientos -->
+                                    <t t-if="len(doc.mantenimiento_ids) == 0">
+                                        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 4px;">
+                                            <p style="margin: 0; color: #999; font-size: 12px;">
+                                                <i class="fa fa-info-circle"></i> No hay mantenimientos registrados para este equipo.
+                                            </p>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+
+                            <!-- Notas Finales -->
+                            <div style="background-color: #f0f0f0; padding: 12px; border-radius: 4px; font-size: 11px; line-height: 1.5; margin-top: 20px;">
+                                <p style="margin: 0; font-weight: bold; color: #333;">Nota Importante:</p>
+                                <p style="margin: 5px 0 0 0; color: #666;">
+                                    Este historial técnico es un documento oficial que registra todas las intervenciones realizadas al equipo. 
+                                    Se recomienda conservarlo como referencia para futuras mantenciones y reclamaciones de garantía.
+                                </p>
+                            </div>
+
+                            <!-- Pie de página -->
+                            <div style="text-align: center; font-size: 10px; color: #999; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd;">
+                                <p style="margin: 0;">TechStore © 2024 - Centro de Mantenimiento Especializado</p>
+                                <p style="margin: 0;">
+                                    Generado el <t t-value="datetime.datetime.now().strftime('%d/%m/%Y a las %H:%M:%S')"/>
+                                </p>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

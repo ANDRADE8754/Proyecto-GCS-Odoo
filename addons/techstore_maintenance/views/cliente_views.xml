@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista Tree para techstore.cliente -->
+        <record id="view_techstore_cliente_tree" model="ir.ui.view">
+            <field name="name">techstore.cliente.tree</field>
+            <field name="model">techstore.cliente</field>
+            <field name="arch" type="xml">
+                <tree string="Clientes">
+                    <field name="ced_cliente"/>
+                    <field name="nombre"/>
+                    <field name="tipo_cliente"/>
+                    <field name="telefono"/>
+                    <field name="correo"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista Tree limitada para Recepcionistas: no permite eliminar desde la lista -->
+        <record id="view_techstore_cliente_tree_receptionist" model="ir.ui.view">
+            <field name="name">techstore.cliente.tree.receptionist</field>
+            <field name="model">techstore.cliente</field>
+            <field name="arch" type="xml">
+                <tree string="Clientes" delete="false">
+                    <field name="ced_cliente"/>
+                    <field name="nombre"/>
+                    <field name="tipo_cliente"/>
+                    <field name="telefono"/>
+                    <field name="correo"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista Form Profesional para techstore.cliente -->
+        <record id="view_techstore_cliente_form" model="ir.ui.view">
+            <field name="name">techstore.cliente.form</field>
+            <field name="model">techstore.cliente</field>
+            <field name="arch" type="xml">
+                <form string="Cliente">
+                    <header>
+                        <button string="Guardar" special="save" class="btn-primary oe_highlight"/>
+                        <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                    </header>
+                    <sheet>
+                        <!-- Smart Buttons -->
+                        <div class="oe_button_box" name="button_box">
+                            <button type="object" name="action_view_equipos" 
+                                    class="oe_stat_button oe_stat_button_green"
+                                    icon="fa-laptop">
+                                <span class="o_stat_text">Equipos</span>
+                            </button>
+                            <button type="object" name="action_view_mantenimientos"
+                                    class="oe_stat_button oe_stat_button_blue"
+                                    icon="fa-wrench">
+                                <field name="mantenimiento_ids" widget="statinfo" string="Mantenimientos" readonly="1"/>
+                            </button>
+                        </div>
+
+                        <!-- Título Principal -->
+                        <h1 class="o_form_label">
+                            <field name="nombre" placeholder="Nombre del cliente" class="oe_inline" style="font-weight: bold;"/>
+                        </h1>
+                        <p class="text-muted">
+                            <field name="tipo_cliente" readonly="1" class="oe_inline"/>
+                        </p>
+
+                        <!-- Información General -->
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h3 style="border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                                    <i class="fa fa-id-card"/> Datos Personales
+                                </h3>
+                                <group>
+                                    <field name="ced_cliente" required="1" options="{'no_create': True}" placeholder="Ej: 1234567890" help="Cédula ecuatoriana válida (10 dígitos). Se validará automáticamente."/>
+                                    <field name="tipo_cliente" required="1"/>
+                                    <field name="telefono" placeholder="Ej: 0987654321" help="Teléfono ecuatoriano (10 dígitos, comienza con 0). No se repetirá."/>
+                                    <field name="correo" placeholder="Ej: correo@example.com" help="Correo electrónico válido. No se repetirá."/>
+                                </group>
+                            </div>
+                            <div class="col-md-6">
+                                <h3 style="border-bottom: 2px solid #28a745; padding-bottom: 10px;">
+                                    <i class="fa fa-map-marker"/> Ubicación
+                                </h3>
+                                <group>
+                                    <field name="direccion" colspan="2" rows="4"/>
+                                </group>
+                            </div>
+                        </div>
+
+                        <!-- Tabs -->
+                        <notebook class="mt-4">
+                            <!-- Equipos del Cliente -->
+                            <page string="🖥️ Equipos" name="equipos">
+                                <separator string="Equipos Registrados"/>
+                                <field name="equipo_ids" nolabel="1">
+                                    <tree string="Equipos del Cliente" editable="bottom">
+                                        <field name="id_equipo" readonly="1"/>
+                                        <field name="tipo_equipo" required="1"/>
+                                        <field name="marca" required="1"/>
+                                        <field name="modelo"/>
+                                        <field name="serial" required="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+
+                            <page string="🔧 Mantenimientos" name="mantenimientos">
+                                <separator string="Mantenimientos del Cliente"/>
+                                <field name="mantenimiento_ids" nolabel="1" readonly="1">
+                                    <tree string="Mantenimientos del Cliente" create="false" edit="false">
+                                        <field name="id_mantenimiento"/>
+                                        <field name="id_equipo"/>
+                                        <field name="id_estado"/>
+                                        <field name="id_prioridad"/>
+                                        <field name="fecha_ingreso"/>
+                                        <field name="fecha_estimada_entrega"/>
+                                        <field name="esta_retrasado" optional="hide"/>
+                                    </tree>
+                                </field>
+                            </page>
+
+                            <!-- Seguimiento -->
+                            <page string="💬 Seguimiento" name="seguimiento">
+                                <field name="message_ids" nolabel="1" widget="mail_thread"
+                                       options="{'post_refresh': 'recipients'}"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+
+                    <!-- Chatter -->
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="activity_ids" widget="mail_activity" groups="base.group_user"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista Search para techstore.cliente -->
+        <record id="view_techstore_cliente_search" model="ir.ui.view">
+            <field name="name">techstore.cliente.search</field>
+            <field name="model">techstore.cliente</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Clientes">
+                    <field name="ced_cliente" filter_domain="[('ced_cliente', 'ilike', self)]"/>
+                    <field name="nombre" filter_domain="[('nombre', 'ilike', self)]"/>
+                    <field name="correo" filter_domain="[('correo', 'ilike', self)]"/>
+                    <field name="telefono" filter_domain="[('telefono', 'ilike', self)]"/>
+                    <separator/>
+                    <filter name="filter_corporativo" string="Corporativos"
+                            domain="[('tipo_cliente', '=', 'corporativo')]"/>
+                    <filter name="filter_particular" string="Particulares"
+                            domain="[('tipo_cliente', '=', 'particular')]"/>
+                    <separator/>
+                    <group expand="0" string="Agrupar por">
+                        <filter name="group_by_tipo" string="Tipo de Cliente"
+                                context="{'group_by': 'tipo_cliente'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción para abrir la lista de clientes -->
+        <record id="action_techstore_cliente" model="ir.actions.act_window">
+            <field name="name">Clientes</field>
+            <field name="res_model">techstore.cliente</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_techstore_cliente_search"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click para crear un nuevo cliente.
+                </p>
+            </field>
+        </record>
+
+        <!-- Acción específica para Recepcionistas: lista sin opción de eliminar -->
+        <record id="action_techstore_cliente_receptionist" model="ir.actions.act_window">
+            <field name="name">Clientes</field>
+            <field name="res_model">techstore.cliente</field>
+            <field name="views" eval="[(ref('view_techstore_cliente_tree_receptionist'), 'tree'), (ref('view_techstore_cliente_form'), 'form')]"/>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_techstore_cliente_search"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Lista de clientes (recepción). No está disponible la opción Eliminar.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

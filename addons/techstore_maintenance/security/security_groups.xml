@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Grupo: Recepcionista -->
+        <record id="techstore_group_receptionist" model="res.groups">
+            <field name="name">TechStore Recepcionista</field>
+            <field name="category_id" eval="False"/>
+            <field name="implied_ids" eval="[]"/>
+        </record>
+
+        <!-- Grupo: Técnico (hereda de Recepcionista) -->
+        <record id="techstore_group_technician" model="res.groups">
+            <field name="name">TechStore Técnico</field>
+            <field name="category_id" eval="False"/>
+            <field name="implied_ids" eval="[]"/>
+        </record>
+
+        <!-- Grupo: Jefe Técnico (hereda de Técnico) -->
+        <record id="techstore_group_technical_boss" model="res.groups">
+            <field name="name">TechStore Jefe Técnico</field>
+            <field name="category_id" eval="False"/>
+            <field name="implied_ids" eval="[]"/>
+        </record>
+
+        <!-- Grupo: Gerencia (hereda de Jefe Técnico) -->
+        <record id="techstore_group_manager" model="res.groups">
+            <field name="name">TechStore Gerencia</field>
+            <field name="category_id" eval="False"/>
+            <field name="implied_ids" eval="[]"/>
+        </record>
+
+        <!-- Grupo: Administrador (hereda de Gerencia) -->
+        <record id="techstore_group_admin" model="res.groups">
+            <field name="name">TechStore Administrador</field>
+            <field name="category_id" eval="False"/>
+            <field name="implied_ids" eval="[]"/>
+        </record>
+
+        <!-- ===== RECORD RULES ===== -->
+
+        <!-- Rule Recepcionista: Solo ve mantenimientos que él creó -->
+        <record id="rule_mantenimiento_receptionist_own" model="ir.rule">
+            <field name="name">Mantenimiento - Recepcionista ve sus propios</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_mantenimiento"/>
+            <field name="groups" eval="[(4, ref('techstore_group_receptionist'))]"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Rule Técnico: Ve todos los mantenimientos -->
+        <record id="rule_mantenimiento_technician_all" model="ir.rule">
+            <field name="name">Mantenimiento - Técnico ve todos</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_mantenimiento"/>
+            <field name="groups" eval="[(4, ref('techstore_group_technician'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Rule Jefe Técnico: Ve y puede modificar todos -->
+        <record id="rule_mantenimiento_technical_boss_all" model="ir.rule">
+            <field name="name">Mantenimiento - Jefe Técnico ve todos</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_mantenimiento"/>
+            <field name="groups" eval="[(4, ref('techstore_group_technical_boss'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+
+        <!-- Rule Recepcionista: Acceso a Clientes (leer/crear/modificar) sin restricción por creador -->
+        <record id="rule_cliente_receptionist" model="ir.rule">
+            <field name="name">Cliente - Recepcionista acceso general</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_cliente"/>
+            <field name="groups" eval="[(4, ref('techstore_group_receptionist'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Rule Recepcionista: Acceso a Equipos (leer/crear/modificar) sin restricción por creador -->
+        <record id="rule_equipo_receptionist" model="ir.rule">
+            <field name="name">Equipo - Recepcionista acceso general</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_equipo"/>
+            <field name="groups" eval="[(4, ref('techstore_group_receptionist'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">0</field>
+        </record>
+    </data>
+</odoo>

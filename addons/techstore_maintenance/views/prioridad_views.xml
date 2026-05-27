@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista Tree para techstore.prioridad -->
+        <record id="view_techstore_prioridad_tree" model="ir.ui.view">
+            <field name="name">techstore.prioridad.tree</field>
+            <field name="model">techstore.prioridad</field>
+            <field name="arch" type="xml">
+                <tree string="Prioridades" edit="bottom">
+                    <field name="id_prioridad"/>
+                    <field name="nombre"/>
+                    <field name="tiempo_maximo"/>
+                    <field name="color"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista Form para techstore.prioridad -->
+        <record id="view_techstore_prioridad_form" model="ir.ui.view">
+            <field name="name">techstore.prioridad.form</field>
+            <field name="model">techstore.prioridad</field>
+            <field name="arch" type="xml">
+                <form string="Prioridad">
+                    <sheet>
+                        <h1>
+                            <field name="nombre" required="1"/>
+                        </h1>
+                        <group>
+                            <group string="Información">
+                                <field name="id_prioridad" required="1"/>
+                                <field name="tiempo_maximo" required="1"/>
+                                <field name="color" widget="color"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista Search para techstore.prioridad -->
+        <record id="view_techstore_prioridad_search" model="ir.ui.view">
+            <field name="name">techstore.prioridad.search</field>
+            <field name="model">techstore.prioridad</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Prioridades">
+                    <field name="id_prioridad" filter_domain="[('id_prioridad', 'ilike', self)]"/>
+                    <field name="nombre" filter_domain="[('nombre', 'ilike', self)]"/>
+                    <separator/>
+                    <filter name="filter_baja" string="Baja"
+                            domain="[('nombre', '=', 'baja')]"/>
+                    <filter name="filter_media" string="Media"
+                            domain="[('nombre', '=', 'media')]"/>
+                    <filter name="filter_alta" string="Alta"
+                            domain="[('nombre', '=', 'alta')]"/>
+                    <filter name="filter_critica" string="Crítica"
+                            domain="[('nombre', '=', 'critica')]"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción para abrir la lista de prioridades -->
+        <record id="action_techstore_prioridad" model="ir.actions.act_window">
+            <field name="name">Prioridades de Mantenimiento</field>
+            <field name="res_model">techstore.prioridad</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_techstore_prioridad_search"/>
+        </record>
+    </data>
+</odoo>

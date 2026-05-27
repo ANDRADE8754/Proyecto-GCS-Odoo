@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Secuencia para generar ID de equipos -->
+        <record id="seq_techstore_equipo" model="ir.sequence">
+            <field name="name">Equipo - TechStore</field>
+            <field name="code">techstore.equipo</field>
+            <field name="prefix">EQP-</field>
+            <field name="padding">6</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <!-- Vista Tree limitada para Recepcionistas -->
+        <record id="view_techstore_equipo_tree_receptionist" model="ir.ui.view">
+            <field name="name">techstore.equipo.tree.receptionist</field>
+            <field name="model">techstore.equipo</field>
+            <field name="arch" type="xml">
+                <tree string="Equipos" delete="false">
+                    <field name="id_equipo"/>
+                    <field name="ced_cliente"/>
+                    <field name="tipo_equipo"/>
+                    <field name="marca"/>
+                    <field name="modelo"/>
+                    <field name="serial"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista Tree para techstore.equipo -->
+        <record id="view_techstore_equipo_tree" model="ir.ui.view">
+            <field name="name">techstore.equipo.tree</field>
+            <field name="model">techstore.equipo</field>
+            <field name="arch" type="xml">
+                <tree string="Equipos">
+                    <field name="id_equipo"/>
+                    <field name="ced_cliente"/>
+                    <field name="tipo_equipo"/>
+                    <field name="marca"/>
+                    <field name="modelo"/>
+                    <field name="serial"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista Form para techstore.equipo -->
+        <record id="view_techstore_equipo_form" model="ir.ui.view">
+            <field name="name">techstore.equipo.form</field>
+            <field name="model">techstore.equipo</field>
+            <field name="arch" type="xml">
+                <form string="Equipo Registrado">
+                    <header>
+                        <button string="Guardar" special="save" class="btn-primary oe_highlight"/>
+                        <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_mantenimientos" type="object" 
+                                    class="oe_stat_button oe_stat_button_blue" icon="fa-wrench">
+                                <field name="mantenimiento_ids" widget="statinfo" 
+                                    string="Mantenimientos" readonly="1"/>
+                            </button>
+                            <button name="action_view_cliente" type="object"
+                                    class="oe_stat_button oe_stat_button_green"
+                                    icon="fa-user">
+                                <field name="ced_cliente" widget="statinfo" string="Cliente"/>
+                            </button>
+                        </div>
+
+                        <h1 class="o_form_label">
+                            <field name="id_equipo" readonly="1" class="oe_inline" style="font-weight: bold;"/>
+                            <span class="badge badge-info ml-2">
+                                <field name="tipo_equipo" readonly="1" class="oe_inline"/>
+                            </span>
+                        </h1>
+                        <p class="text-muted">
+                            <i class="fa fa-building"/> <field name="ced_cliente" readonly="1" class="oe_inline"/>
+                        </p>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h3 style="border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                                    <i class="fa fa-microchip"/> Especificaciones
+                                </h3>
+                                <group>
+                                    <field name="ced_cliente" required="1" options="{'no_create': False, 'no_create_edit': False}"/>
+                                    <field name="tipo_equipo" required="1" options="{'no_create': True}"/>
+                                    <field name="marca" required="1"/>
+                                    <field name="modelo"/>
+                                </group>
+                            </div>
+                            <div class="col-md-6">
+                                <h3 style="border-bottom: 2px solid #28a745; padding-bottom: 10px;">
+                                    <i class="fa fa-barcode"/> Identificación
+                                </h3>
+                                <group>
+                                    <field name="serial" required="1"/>
+                                    <field name="id_equipo" readonly="1"/>
+                                </group>
+                            </div>
+                        </div>
+
+                        <notebook class="mt-4">
+                            <page string="🔧 Mantenimientos" name="mantenimientos">
+                                <separator string="Historial de Mantenimientos"/>
+                                <field name="mantenimiento_ids" nolabel="1" readonly="1">
+                                    <tree string="Mantenimientos del Equipo" create="false" edit="false">
+                                        <field name="id_mantenimiento"/>
+                                        <field name="ced_cliente"/>
+                                        <field name="ced_tecnico"/>
+                                        <field name="id_estado"/>
+                                        <field name="id_prioridad"/>
+                                        <field name="fecha_ingreso"/>
+                                        <field name="fecha_estimada_entrega"/>
+                                        <field name="esta_retrasado" optional="hide"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="📝 Notas y Observaciones" name="observaciones">
+                                <separator string="Información Adicional"/>
+                                <field name="observaciones" nolabel="0" colspan="2" rows="6"
+                                       placeholder="Notas técnicas, particularidades del equipo, etc."/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista Search para techstore.equipo -->
+        <record id="view_techstore_equipo_search" model="ir.ui.view">
+            <field name="name">techstore.equipo.search</field>
+            <field name="model">techstore.equipo</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Equipos">
+                    <field name="id_equipo" filter_domain="[('id_equipo', 'ilike', self)]"/>
+                    <field name="ced_cliente" filter_domain="[('ced_cliente', 'ilike', self)]"/>
+                    <field name="serial" filter_domain="[('serial', 'ilike', self)]"/>
+                    <field name="marca" filter_domain="[('marca', 'ilike', self)]"/>
+                    <separator/>
+                    <filter name="filter_laptop" string="Laptops"
+                            domain="[('tipo_equipo', '=', 'laptop')]"/>
+                    <filter name="filter_pc" string="PCs Escritorio"
+                            domain="[('tipo_equipo', '=', 'pc')]"/>
+                    <filter name="filter_impresora" string="Impresoras"
+                            domain="[('tipo_equipo', '=', 'impresora')]"/>
+                    <filter name="filter_periferico" string="Periféricos"
+                            domain="[('tipo_equipo', '=', 'periferico')]"/>
+                    <separator/>
+                    <group expand="0" string="Agrupar por">
+                        <filter name="group_by_tipo" string="Tipo de Equipo"
+                                context="{'group_by': 'tipo_equipo'}"/>
+                        <filter name="group_by_cliente" string="Cliente"
+                                context="{'group_by': 'ced_cliente'}"/>
+                        <filter name="group_by_marca" string="Marca"
+                                context="{'group_by': 'marca'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción completa (técnicos/admin) -->
+        <record id="action_techstore_equipo" model="ir.actions.act_window">
+            <field name="name">Equipos</field>
+            <field name="res_model">techstore.equipo</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_techstore_equipo_search"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click para registrar un nuevo equipo.
+                </p>
+            </field>
+        </record>
+
+        <!-- Acción para Recepcionistas -->
+        <record id="action_techstore_equipo_receptionist" model="ir.actions.act_window">
+            <field name="name">Equipos</field>
+            <field name="res_model">techstore.equipo</field>
+            <field name="views" eval="[(ref('view_techstore_equipo_tree_receptionist'), 'tree'), (ref('view_techstore_equipo_form'), 'form')]"/>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_techstore_equipo_search"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Lista de equipos (recepción). No está disponible la opción Eliminar.
+                </p>
+            </field>
+        </record>
+
+        <!-- *** MENUITEMS ELIMINADOS DE AQUÍ — ahora viven en menu.xml *** -->
+
+    </data>
+</odoo>

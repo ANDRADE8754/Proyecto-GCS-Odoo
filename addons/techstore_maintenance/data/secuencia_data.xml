@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Secuencia para generar ID de mantenimientos -->
+        <record id="seq_techstore_mantenimiento" model="ir.sequence">
+            <field name="name">Mantenimiento - TechStore</field>
+            <field name="code">techstore.mantenimiento</field>
+            <field name="prefix">MNT-</field>
+            <field name="padding">6</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+    </data>
+</odoo>

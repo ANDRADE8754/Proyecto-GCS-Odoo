@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ═══════════════════════════════════════════
+         MENÚ RAÍZ
+    ═══════════════════════════════════════════ -->
+    <menuitem id="menu_techstore_maintenance"
+              name="TechStore"
+              web_icon="base,static/description/icon.png"
+              sequence="10"/>
+
+    <!-- ═══════════════════════════════════════════
+         SUBMENÚS DE PRIMER NIVEL
+    ═══════════════════════════════════════════ -->
+
+    <menuitem id="menu_techstore_mantenimiento"
+              name="Mantenimientos"
+              parent="menu_techstore_maintenance"
+              action="action_techstore_mantenimiento"
+              sequence="10"/>
+
+    <menuitem id="menu_techstore_cliente"
+              name="Clientes"
+              parent="menu_techstore_maintenance"
+              action="action_techstore_cliente"
+              sequence="20"/>
+
+    <menuitem id="menu_techstore_equipo"
+              name="Equipos"
+              parent="menu_techstore_maintenance"
+              action="action_techstore_equipo"
+              sequence="30"/>
+
+    <menuitem id="menu_techstore_tecnico"
+              name="Técnicos"
+              parent="menu_techstore_maintenance"
+              action="action_techstore_tecnico"
+              sequence="40"/>
+
+    <menuitem id="menu_techstore_settings"
+              name="Configuración"
+              parent="menu_techstore_maintenance"
+              sequence="50"/>
+
+    <!-- ═══════════════════════════════════════════
+         CONFIGURACIÓN (Estados y Prioridades)
+    ═══════════════════════════════════════════ -->
+
+    <menuitem id="menu_techstore_estado"
+              name="Estados"
+              parent="menu_techstore_settings"
+              action="action_techstore_estado"
+              sequence="10"/>
+
+    <menuitem id="menu_techstore_prioridad"
+              name="Prioridades"
+              parent="menu_techstore_settings"
+              action="action_techstore_prioridad"
+              sequence="20"/>
+</odoo>
