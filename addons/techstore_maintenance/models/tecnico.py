@@ -196,11 +196,9 @@ class TechstoreTecnico(models.Model):
         return action
 
     def action_guardar_y_volver(self):
-        self.ensure_one()
         return self.env.ref('techstore_maintenance.action_techstore_tecnico').read()[0]
 
     def action_cancelar_creacion(self):
-        self.ensure_one()
         if self.exists():
             self.sudo().unlink()
         return self.env.ref('techstore_maintenance.action_techstore_tecnico').read()[0]

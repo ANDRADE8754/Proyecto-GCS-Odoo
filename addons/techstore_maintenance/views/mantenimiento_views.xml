@@ -75,8 +75,8 @@
                             <field name="es_tecnico_jefe" invisible="1"/>
                             <field name="es_recepcionista" invisible="1"/>
                             <group string="Datos del Servicio">
-                                <field name="ced_cliente" required="1" options="{'no_create': False}" readonly="0"/>
-                                <field name="id_equipo" required="1" domain="[('ced_cliente', '=', ced_cliente)]" options="{'no_create': False}" readonly="0" context="{'default_ced_cliente': ced_cliente}"/>
+                                <field name="ced_cliente" required="1" options="{'no_create': True, 'no_create_edit': True}" readonly="0"/>
+                                <field name="id_equipo" required="1" domain="[('ced_cliente', '=', ced_cliente)]" options="{'no_create': True, 'no_create_edit': True}" readonly="0" context="{'default_ced_cliente': ced_cliente}"/>
                                 <field name="ced_tecnico" options="{'no_create': True}"/>
                                 <field name="id_prioridad" required="1" options="{'no_create': True}" readonly="0"/>
                             </group>
@@ -111,9 +111,10 @@
                             </page>
                             <page string="Seguimiento" invisible="0">
                                 <group>
-                                    <field name="ced_cliente" readonly="1"/>
-                                    <field name="id_equipo" readonly="1"/>
-                                    <field name="ced_tecnico" readonly="1"/>
+                                    <field name="id_mantenimiento" readonly="1"/>
+                                    <field name="fecha_ingreso" readonly="1"/>
+                                    <field name="fecha_estimada_entrega" readonly="1"/>
+                                    <field name="esta_retrasado" readonly="1"/>
                                 </group>
                             </page>
                         </notebook>

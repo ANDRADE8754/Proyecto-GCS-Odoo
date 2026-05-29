@@ -5,6 +5,9 @@ from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
 
+_logger = logging.getLogger(__name__)
+
+
 class TechstoreMantenimiento(models.Model):
     _name = 'techstore.mantenimiento'
     _description = 'Mantenimiento - TechStore'
@@ -422,13 +425,40 @@ class TechstoreMantenimiento(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        def _to_m2o_id(value):
+            if isinstance(value, int):
+                return value
+            if isinstance(value, (list, tuple)):
+                return value[0] if value else False
+            if isinstance(value, str) and value.isdigit():
+                return int(value)
+            return False
+
         for vals in vals_list:
+            vals['ced_cliente'] = _to_m2o_id(vals.get('ced_cliente'))
+            vals['id_equipo'] = _to_m2o_id(vals.get('id_equipo'))
+
+            if not vals.get('ced_cliente') and not vals.get('id_equipo'):
+                raise ValidationError(_('Debes seleccionar Cliente y Equipo desde la lista desplegable antes de guardar el mantenimiento.'))
+
+            if not vals.get('ced_cliente') and self.env.context.get('default_ced_cliente'):
+                vals['ced_cliente'] = self.env.context.get('default_ced_cliente')
             if not vals.get('id_mantenimiento') or vals['id_mantenimiento'] == 'Nuevo':
                 vals['id_mantenimiento'] = self.env['ir.sequence'].next_by_code('techstore.mantenimiento') or _('New')
             if not vals.get('ced_cliente') and vals.get('id_equipo'):
                 equipo = self.env['techstore.equipo'].browse(vals['id_equipo'])
                 if equipo.exists():
                     vals['ced_cliente'] = equipo.ced_cliente.id
+            if not vals.get('ced_cliente'):
+                _logger.warning(
+                    'Create mantenimiento sin ced_cliente. vals=%s context_defaults={default_ced_cliente:%s, default_id_equipo:%s}',
+                    vals,
+                    self.env.context.get('default_ced_cliente'),
+                    self.env.context.get('default_id_equipo'),
+                )
+                raise ValidationError(_('Debes seleccionar un cliente válido antes de guardar el mantenimiento.'))
+            if not vals.get('id_equipo'):
+                raise ValidationError(_('Debes seleccionar un equipo válido del cliente antes de guardar el mantenimiento.'))
             if not vals.get('id_estado'):
                 estado_nuevo = self.env['techstore.estado'].search([('nombre_estado', '=', 'nuevo')], limit=1)
                 if estado_nuevo:
@@ -615,12 +645,10 @@ class TechstoreMantenimiento(models.Model):
         }
 
     def action_guardar_y_volver(self):
-        self.ensure_one()
         return self.env.ref('techstore_maintenance.action_techstore_mantenimiento').read()[0]
 
     def action_cancelar_creacion(self):
         """Cancela la creación de un nuevo mantenimiento y vuelve a la lista principal."""
-        self.ensure_one()
         if self.exists():
             self.sudo().unlink()
         return self.env.ref('techstore_maintenance.action_techstore_mantenimiento').read()[0]

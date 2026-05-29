@@ -5,34 +5,40 @@ Este proyecto consiste en el desarrollo de una solución tecnológica orientada 
 ---
 
 ## 👥 Integrantes del Grupo
-* Alejandro Andrade
-* Jonathan Lozada
-* Marco Serrano
-* Christian Sanchez
+
+- Alejandro Andrade
+- Jonathan Lozada
+- Marco Serrano
+- Christian Sanchez
 
 ---
 
 ## 📝 Información General del Proyecto
 
 ### 1. Contexto del Problema
+
 TechStore ofrece servicios de venta, soporte técnico y mantenimiento de equipos tecnológicos a clientes corporativos y particulares. Históricamente, la gestión de estos servicios se ha ejecutado de manera manual o mediante hojas de cálculo, desencadenando múltiples inconvenientes operativos:
-* Pérdida recurrente de registros de mantenimiento e inconsistencias graves en los datos.
-* Duplicidad de información y dificultad para consultar historiales técnicos de los equipos.
-* Asignación incorrecta de técnicos y retrasos en los tiempos de atención.
-* Falta de seguimiento de los estados de reparación y ausencia de control de prioridades.
-* Carencia absoluta de métricas y KPIs para evaluar la calidad del servicio y el rendimiento del taller.
+
+- Pérdida recurrente de registros de mantenimiento e inconsistencias graves en los datos.
+- Duplicidad de información y dificultad para consultar historiales técnicos de los equipos.
+- Asignación incorrecta de técnicos y retrasos en los tiempos de atención.
+- Falta de seguimiento de los estados de reparación y ausencia de control de prioridades.
+- Carencia absoluta de métricas y KPIs para evaluar la calidad del servicio y el rendimiento del taller.
 
 ### 2. Objetivo General
+
 Desarrollar una solución tecnológica integral para la gestión de mantenimientos técnicos de TechStore, aplicando rigurosamente conceptos de ingeniería de requisitos, calidad de software, aseguramiento de la calidad (ISO 25010 / SQM), métricas de software, pruebas estructuradas, estándares de la industria y procesos de mejora continua.
 
 ### 3. Arquitectura del Sistema (Módulos Principales)
+
 El sistema unifica los procesos a través de los siguientes módulos interconectados que llevan la información de extremo a extremo:
-* **Gestión de Clientes:** Registro y administración de datos de contacto de clientes particulares y corporativos, centralizando su historial general de atención. El cliente es el punto inicial del proceso.
-* **Gestión de Equipos:** Trazabilidad e ingreso de dispositivos al taller (Laptops, PCs, Impresoras, Monitores, etc.) registrando marca, modelo, número de serie, estado y observaciones.
-* **Gestión de Mantenimientos:** Creación de órdenes de trabajo, asignación de prioridades (críticas, medias, bajas), registro de diagnósticos, fallas y control de tiempos de resolución.
-* **Gestión de Técnicos:** Control de personal, administración de especialidades, disponibilidad y distribución equitativa de la carga laboral para optimizar la productividad.
-* **Flujo de Estados:** Seguimiento en tiempo real del ciclo de vida del mantenimiento a través de las etapas: *Nuevo ➔ Diagnóstico ➔ Reparación ➔ Esperando Repuestos ➔ Finalizado ➔ Entregado*.
-* **Reportes y KPIs:** Dashboard de analítica que toma información de todos los módulos anteriores para transformarla en métricas de rendimiento (tiempos promedio de atención, tasas de productividad, tickets retrasados y niveles de satisfacción del cliente) para tomar decisiones basadas en datos.
+
+- **Gestión de Clientes:** Registro y administración de datos de contacto de clientes particulares y corporativos, centralizando su historial general de atención. El cliente es el punto inicial del proceso.
+- **Gestión de Equipos:** Trazabilidad e ingreso de dispositivos al taller (Laptops, PCs, Impresoras, Monitores, etc.) registrando marca, modelo, número de serie, estado y observaciones.
+- **Gestión de Mantenimientos:** Creación de órdenes de trabajo, asignación de prioridades (críticas, medias, bajas), registro de diagnósticos, fallas y control de tiempos de resolución.
+- **Gestión de Técnicos:** Control de personal, administración de especialidades, disponibilidad y distribución equitativa de la carga laboral para optimizar la productividad.
+- **Flujo de Estados:** Seguimiento en tiempo real del ciclo de vida del mantenimiento a través de las etapas: _Nuevo ➔ Diagnóstico ➔ Reparación ➔ Esperando Repuestos ➔ Finalizado ➔ Entregado_.
+- **Reportes y KPIs:** Dashboard de analítica que toma información de todos los módulos anteriores para transformarla en métricas de rendimiento (tiempos promedio de atención, tasas de productividad, tickets retrasados y niveles de satisfacción del cliente) para tomar decisiones basadas en datos.
 
 ---
 
@@ -41,7 +47,9 @@ El sistema unifica los procesos a través de los siguientes módulos interconect
 El entorno utiliza **Docker Compose** para orquestar la aplicación (Odoo 18 + PostgreSQL 15). Incluye scripts automatizados integrados dentro de los ciclos de vida de los contenedores para facilitar el despliegue rápido, limpio y seguro en ambientes de desarrollo y pruebas.
 
 ### 📋 Requisitos Previos y Estructura
+
 Asegúrate de contar con una estructura de carpetas local similar a esta en la raíz de tu proyecto para que los volúmenes se monten correctamente:
+
 ```text
 ├── addons/          # Módulos personalizados de Odoo (se monta en /mnt/extra-addons)
 ├── backups/         # Almacenamiento local de dumps y filestore (Mapeado a contenedores)
@@ -141,21 +149,25 @@ docker compose --profile tools run --rm restore
 ## 📋 4. Gestión de Ciclo de Vida
 
 ### Iniciar el Entorno
+
 ```bash
 docker compose up -d
 ```
 
 ### Detener el Entorno
+
 ```bash
 docker compose down
 ```
 
 ### Detener y Eliminar Volúmenes (Restaura a Estado Limpio)
+
 ```bash
 docker compose down -v
 ```
 
 ### Ver Logs de los Contenedores
+
 ```bash
 # Todos los contenedores
 docker compose logs -f
@@ -167,6 +179,7 @@ docker compose logs -f restore
 ```
 
 ### Verificar Estado
+
 ```bash
 docker compose ps
 ```
@@ -177,37 +190,46 @@ docker compose ps
 
 El proyecto utiliza volúmenes Docker para persistencia:
 
-| Volumen | Contenedor | Propósito |
-|---------|-----------|----------|
-| `odoo-db-data` | `db` | Base de datos PostgreSQL |
+| Volumen         | Contenedor                  | Propósito                 |
+| --------------- | --------------------------- | ------------------------- |
+| `odoo-db-data`  | `db`                        | Base de datos PostgreSQL  |
 | `odoo-web-data` | `odoo`, `restore`, `backup` | Filestore y datos de Odoo |
 
 ### Montos de Carpetas Locales
 
-| Carpeta Local | Montaje en Contenedor | Propósito |
-|---------------|--------------------|----------|
-| `./backups/` | `/backups` | Almacenamiento de dumps y filestore |
-| `./addons/` | `/mnt/extra-addons` | Módulos personalizados de Odoo |
-| `./scripts/` | `/scripts` | Scripts adicionales de utilidad |
+| Carpeta Local | Montaje en Contenedor | Propósito                           |
+| ------------- | --------------------- | ----------------------------------- |
+| `./backups/`  | `/backups`            | Almacenamiento de dumps y filestore |
+| `./addons/`   | `/mnt/extra-addons`   | Módulos personalizados de Odoo      |
+| `./scripts/`  | `/scripts`            | Scripts adicionales de utilidad     |
 
 ---
 
 ## 🛠️ 6. Troubleshooting Común
 
 ### El servicio `restore` falla
+
 - Verifica que exista el archivo `./backups/db_demo.dump`
 - Revisa los logs: `docker compose logs restore`
 
+### Si aparece un RPC relacionado con `action_guardar_y_volver`
+
+- Haz una recarga dura del navegador (`Ctrl+F5`) para que Odoo cargue la vista actualizada.
+- El botón Guardar usa el guardado nativo del formulario; Cancelar usa la acción personalizada de cierre.
+
 ### Odoo no se conecta a la base de datos
+
 - Asegúrate de que el contenedor `db` está saludable: `docker compose ps`
 - Espera a que el healthcheck pase (hasta 50 segundos)
 
 ### Quiero limpiar todo y empezar desde cero
+
 ```bash
 docker compose down -v
 docker compose up -d
 ```
 
 ### Cambiar la contraseña de PostgreSQL
+
 Edita el `docker-compose.yml` y modifica `POSTGRES_PASSWORD=odoo`
 Luego ejecuta `docker compose down -v && docker compose up -d`

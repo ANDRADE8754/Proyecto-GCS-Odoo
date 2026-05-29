@@ -112,6 +112,19 @@ class TechstoreEquipo(models.Model):
             'target': 'current',
         }
 
+    def action_guardar_y_volver(self):
+        """Guarda y vuelve a la lista de equipos."""
+        return self.env.ref('techstore_maintenance.action_techstore_equipo').read()[0]
+
+    def action_cancelar_creacion(self):
+        """Cancela la creación: elimina el registro si existe y vuelve a la lista."""
+        if self.exists():
+            try:
+                self.sudo().unlink()
+            except Exception:
+                pass
+        return self.env.ref('techstore_maintenance.action_techstore_equipo').read()[0]
+
     @api.model
     def create(self, vals):
         """Override create para asegurar la secuencia"""
