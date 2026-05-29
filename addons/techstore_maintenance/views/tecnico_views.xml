@@ -158,7 +158,7 @@
                                             <strong>Carga de Trabajo:</strong> <field name="carga_trabajo"/> tareas
                                         </p>
                                         <p t-if="record.disponibilidad.raw_value"><span class="badge badge-success">Disponible</span></p>
-                                        <p t-if="not record.disponibilidad.raw_value"><span class="badge badge-danger">No Disponible</span></p>
+                                        <p t-if="!record.disponibilidad.raw_value"><span class="badge badge-danger">No Disponible</span></p>
                                     </div>
                                 </div>
                                 <div class="o_kanban_footer">

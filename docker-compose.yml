@@ -47,6 +47,8 @@ services:
         fi
 
         echo "Eliminando base previa si existe..."
+        echo "Terminando conexiones activas a la BD $$DB_NAME..."
+        psql -h db -U odoo -d postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='$$DB_NAME' AND pid <> pg_backend_pid();" || true
         dropdb -h db -U odoo --if-exists "$$DB_NAME"
 
         echo "Creando base $$DB_NAME..."

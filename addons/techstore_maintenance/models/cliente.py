@@ -381,3 +381,16 @@ class TechstoreCliente(models.Model):
         action['domain'] = [('ced_cliente', '=', self.id)]
         action['context'] = {'default_ced_cliente': self.id}
         return action
+
+    def action_guardar_y_volver(self):
+        """Guarda y vuelve a la lista de clientes."""
+        return self.env.ref('techstore_maintenance.action_techstore_cliente').read()[0]
+
+    def action_cancelar_creacion(self):
+        """Cancela la creación: elimina el registro si existe y vuelve a la lista."""
+        if self.exists():
+            try:
+                self.sudo().unlink()
+            except Exception:
+                pass
+        return self.env.ref('techstore_maintenance.action_techstore_cliente').read()[0]
