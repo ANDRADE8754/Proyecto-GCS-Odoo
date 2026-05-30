@@ -10,7 +10,7 @@
             <field name="name">techstore.mantenimiento.tree</field>
             <field name="model">techstore.mantenimiento</field>
             <field name="arch" type="xml">
-                <tree string="Mantenimientos" decoration-danger="esta_retrasado" decoration-info="es_estado_final">
+                <tree string="Mantenimientos" decoration-danger="esta_retrasado" decoration-info="es_estado_final" banner_route="/techstore_maintenance/dashboard_banner">
                     <field name="id_mantenimiento"/>
                     <field name="ced_cliente"/>
                     <field name="id_equipo"/>
@@ -127,7 +127,7 @@
             <field name="name">techstore.mantenimiento.kanban</field>
             <field name="model">techstore.mantenimiento</field>
             <field name="arch" type="xml">
-                <kanban default_group_by="id_estado" class="o_kanban_small_column" quick_create="false" group_create="false" draggable="false">
+                <kanban default_group_by="id_estado" class="o_kanban_small_column" quick_create="false" group_create="false" draggable="false" banner_route="/techstore_maintenance/dashboard_banner">
                     <field name="id_estado" options="{'no_create': True, 'no_create_edit': True}"/>
                     <field name="id_prioridad"/>
                     <field name="ced_cliente"/>
@@ -194,10 +194,36 @@
             </field>
         </record>
 
+        <!-- Vista Pivot (Cubo Analítico) -->
+        <record id="view_techstore_mantenimiento_pivot" model="ir.ui.view">
+            <field name="name">techstore.mantenimiento.pivot</field>
+            <field name="model">techstore.mantenimiento</field>
+            <field name="arch" type="xml">
+                <pivot string="Análisis de Mantenimientos" sample="1">
+                    <field name="ced_tecnico" type="row"/>
+                    <field name="id_estado" type="col"/>
+                    <field name="tiempo_atencion_horas" type="measure"/>
+                    <field name="esta_retrasado" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Vista Graph (Gráficos) -->
+        <record id="view_techstore_mantenimiento_graph" model="ir.ui.view">
+            <field name="name">techstore.mantenimiento.graph</field>
+            <field name="model">techstore.mantenimiento</field>
+            <field name="arch" type="xml">
+                <graph string="Análisis de Mantenimientos" type="bar" sample="1">
+                    <field name="ced_tecnico" type="row"/>
+                    <field name="id_estado" type="col"/>
+                </graph>
+            </field>
+        </record>
+
         <record id="action_techstore_mantenimiento" model="ir.actions.act_window">
             <field name="name">Mantenimientos</field>
             <field name="res_model">techstore.mantenimiento</field>
-            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_mode">kanban,tree,form,pivot,graph</field>
             <field name="search_view_id" ref="view_techstore_mantenimiento_search"/>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">Crea una nueva orden de mantenimiento.</p>

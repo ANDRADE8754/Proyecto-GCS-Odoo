@@ -16,6 +16,14 @@
     'data': [
         'security/ir.model.access.csv',
         'data/secuencia_data.xml',
+        # Reportes
+        'reports/reports.xml',
+        'reports/mantenimiento_orden.xml',
+        'reports/certificado_entrega.xml',
+        'reports/equipo_historial.xml',
+        'reports/reporte_general_pdf.xml',
+        # Vistas de negocio
+        'views/dashboard_banner.xml',
         'views/equipo_views.xml',
         'views/cliente_views.xml',
         'views/tecnico_views.xml',
@@ -23,6 +31,9 @@
         'views/prioridad_views.xml',
         'views/mantenimiento_views.xml',
         'views/mantenimiento_estado_wizard_views.xml',
+        # Wizards
+        'wizard/reporte_wizard_views.xml',
+        # Menús y Datos Maestros
         'views/menu.xml',          # ← SIEMPRE AL FINAL
         'data/maestro_data.xml',
     ],

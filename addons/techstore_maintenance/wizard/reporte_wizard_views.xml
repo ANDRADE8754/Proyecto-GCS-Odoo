@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista Formulario del Wizard -->
+        <record id="view_techstore_reporte_wizard_form" model="ir.ui.view">
+            <field name="name">techstore.reporte.wizard.form</field>
+            <field name="model">techstore.reporte.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Generar Reporte de Mantenimiento">
+                    <sheet>
+                        <div class="oe_title">
+                            <h2>Filtros del Reporte</h2>
+                        </div>
+                        <group>
+                            <group string="Rango de Fechas">
+                                <field name="fecha_inicio" required="1"/>
+                                <field name="fecha_fin" required="1"/>
+                            </group>
+                            <group string="Filtros Opcionales">
+                                <field name="ced_tecnico" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="ced_cliente" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="id_prioridad" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="id_estado" options="{'no_create': True, 'no_open': True}"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_generar_reporte_pdf" 
+                                string="Generar PDF" 
+                                type="object" 
+                                class="btn-primary oe_highlight"/>
+                        <button string="Cancelar" 
+                                class="btn-secondary" 
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción de Ventana para Abrir el Wizard -->
+        <record id="action_techstore_reporte_wizard" model="ir.actions.act_window">
+            <field name="name">Generar Reporte PDF</field>
+            <field name="res_model">techstore.reporte.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_techstore_reporte_wizard_form"/>
+        </record>
+    </data>
+</odoo>

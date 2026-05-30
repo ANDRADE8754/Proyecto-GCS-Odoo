@@ -36,6 +36,26 @@
               action="action_techstore_tecnico"
               sequence="40"/>
 
+    <!-- ═══════════════════════════════════════════
+         REPORTES
+    ═══════════════════════════════════════════ -->
+    <menuitem id="menu_techstore_reportes"
+              name="Reportes"
+              parent="menu_techstore_maintenance"
+              sequence="45"/>
+
+    <menuitem id="menu_techstore_report_analisis"
+              name="Análisis de Mantenimientos"
+              parent="menu_techstore_reportes"
+              action="action_techstore_mantenimiento"
+              sequence="10"/>
+
+    <menuitem id="menu_techstore_report_wizard"
+              name="Reportes PDF Dinámicos"
+              parent="menu_techstore_reportes"
+              action="action_techstore_reporte_wizard"
+              sequence="20"/>
+
     <menuitem id="menu_techstore_settings"
               name="Configuración"
               parent="menu_techstore_maintenance"

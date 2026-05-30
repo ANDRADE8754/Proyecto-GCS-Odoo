@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="reporte_general_pdf_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333;">
+                            
+                            <!-- Cabecera del Reporte -->
+                            <div style="border-bottom: 3px solid #0056b3; padding-bottom: 10px; margin-bottom: 20px;">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h2 style="color: #0056b3; font-weight: bold; margin: 0;">
+                                            <i class="fa fa-bar-chart"></i> REPORTE DE GESTIÓN DE MANTENIMIENTOS
+                                        </h2>
+                                        <p style="color: #666; margin: 5px 0 0 0; font-size: 13px;">
+                                            TechStore - Centro de Soporte y Calidad Técnica
+                                        </p>
+                                    </div>
+                                    <div class="col-4 text-right" style="font-size: 12px; color: #555;">
+                                        <strong>Rango de Fechas:</strong><br/>
+                                        Desde: <span t-field="o.fecha_inicio" t-options="{'widget': 'date'}"/><br/>
+                                        Hasta: <span t-field="o.fecha_fin" t-options="{'widget': 'date'}"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Filtros Aplicados -->
+                            <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px; margin-bottom: 25px; font-size: 12px;">
+                                <h5 style="margin: 0 0 8px 0; color: #495057; font-weight: bold; font-size: 13px;">Filtros de Búsqueda Activos</h5>
+                                <div class="row">
+                                    <div class="col-3">
+                                        <strong>Técnico:</strong> 
+                                        <span t-if="o.ced_tecnico" t-field="o.ced_tecnico.nombre"/>
+                                        <span t-else="" style="color: #999;">Todos</span>
+                                    </div>
+                                    <div class="col-3">
+                                        <strong>Cliente:</strong> 
+                                        <span t-if="o.ced_cliente" t-field="o.ced_cliente.nombre"/>
+                                        <span t-else="" style="color: #999;">Todos</span>
+                                    </div>
+                                    <div class="col-3">
+                                        <strong>Prioridad:</strong> 
+                                        <span t-if="o.id_prioridad" t-field="o.id_prioridad.nombre"/>
+                                        <span t-else="" style="color: #999;">Todas</span>
+                                    </div>
+                                    <div class="col-3">
+                                        <strong>Estado:</strong> 
+                                        <span t-if="o.id_estado" t-field="o.id_estado.nombre_estado"/>
+                                        <span t-else="" style="color: #999;">Todos</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Llamada a los KPIs precalculados -->
+                            <t t-set="kpis" t-value="o.get_report_kpis()"/>
+                            <t t-set="mantenimientos" t-value="o._get_mantenimientos_reporte()"/>
+
+                            <!-- Tarjetas KPI -->
+                            <div class="row text-center" style="margin-bottom: 30px;">
+                                <!-- KPI 1 -->
+                                <div class="col-4">
+                                    <div style="background-color: #eef5fc; border-left: 5px solid #0056b3; border-radius: 6px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                                        <h6 style="color: #0056b3; margin: 0; font-size: 11px; text-transform: uppercase; font-weight: bold;">Mantenimientos Totales</h6>
+                                        <p style="margin: 8px 0 0 0; font-size: 28px; font-weight: bold; color: #111;">
+                                            <span t-out="kpis['total']"/>
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- KPI 2 -->
+                                <div class="col-4">
+                                    <div style="background-color: #effcf1; border-left: 5px solid #28a745; border-radius: 6px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                                        <h6 style="color: #28a745; margin: 0; font-size: 11px; text-transform: uppercase; font-weight: bold;">Promedio Atención</h6>
+                                        <p style="margin: 8px 0 0 0; font-size: 28px; font-weight: bold; color: #111;">
+                                            <span t-out="kpis['promedio_tiempo']"/> <small style="font-size: 14px; color: #666;">Hrs</small>
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- KPI 3 -->
+                                <div class="col-4">
+                                    <div style="background-color: #fdf4f4; border-left: 5px solid #dc3545; border-radius: 6px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                                        <h6 style="color: #dc3545; margin: 0; font-size: 11px; text-transform: uppercase; font-weight: bold;">Tasa de Retraso</h6>
+                                        <p style="margin: 8px 0 0 0; font-size: 28px; font-weight: bold; color: #111;">
+                                            <span t-out="kpis['pct_retrasados']"/>%
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Listado Detallado de Mantenimientos -->
+                            <h4 style="color: #0056b3; border-bottom: 2px solid #eef2f7; padding-bottom: 6px; margin-bottom: 15px; font-size: 15px; font-weight: bold;">
+                                📝 Listado Detallado de Órdenes
+                            </h4>
+                            
+                            <t t-if="not mantenimientos">
+                                <div style="background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px; padding: 15px; text-align: center; color: #856404; font-size: 13px;">
+                                    <i class="fa fa-info-circle"></i> No se encontraron registros de mantenimiento que coincidan con los filtros seleccionados en este periodo.
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <table class="table table-sm table-striped" style="font-size: 11px; width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background-color: #0056b3; color: white;">
+                                            <th style="padding: 6px; text-align: left; border: 1px solid #dee2e6;">ID Orden</th>
+                                            <th style="padding: 6px; text-align: left; border: 1px solid #dee2e6;">Cliente</th>
+                                            <th style="padding: 6px; text-align: left; border: 1px solid #dee2e6;">Equipo</th>
+                                            <th style="padding: 6px; text-align: left; border: 1px solid #dee2e6;">Técnico</th>
+                                            <th style="padding: 6px; text-align: center; border: 1px solid #dee2e6;">Fecha Ingreso</th>
+                                            <th style="padding: 6px; text-align: center; border: 1px solid #dee2e6;">Estado</th>
+                                            <th style="padding: 6px; text-align: center; border: 1px solid #dee2e6;">Horas</th>
+                                            <th style="padding: 6px; text-align: center; border: 1px solid #dee2e6;">SLA</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="mantenimientos" t-as="m">
+                                            <tr>
+                                                <td style="padding: 6px; font-weight: bold; border: 1px solid #dee2e6; color: #dc3545;">
+                                                    <span t-field="m.id_mantenimiento"/>
+                                                </td>
+                                                <td style="padding: 6px; border: 1px solid #dee2e6;">
+                                                    <span t-field="m.ced_cliente.nombre"/>
+                                                </td>
+                                                <td style="padding: 6px; border: 1px solid #dee2e6;">
+                                                    [<span t-field="m.id_equipo.id_equipo"/>] <span t-field="m.id_equipo.marca"/> / <span t-field="m.id_equipo.modelo"/>
+                                                </td>
+                                                <td style="padding: 6px; border: 1px solid #dee2e6;">
+                                                    <span t-if="m.ced_tecnico" t-field="m.ced_tecnico.nombre"/>
+                                                    <span t-else="" style="color: #999;">Sin Asignar</span>
+                                                </td>
+                                                <td style="padding: 6px; text-align: center; border: 1px solid #dee2e6;">
+                                                    <span t-field="m.fecha_ingreso" t-options="{'widget': 'date'}"/>
+                                                </td>
+                                                <td style="padding: 6px; text-align: center; border: 1px solid #dee2e6; text-transform: uppercase; font-weight: bold; font-size: 9px;">
+                                                    <span t-field="m.id_estado.nombre_estado"/>
+                                                </td>
+                                                <td style="padding: 6px; text-align: center; border: 1px solid #dee2e6;">
+                                                    <span t-if="m.tiempo_atencion_horas" t-field="m.tiempo_atencion_horas" t-options="{'widget': 'float_time'}"/>
+                                                    <span t-else="">-</span>
+                                                </td>
+                                                <td style="padding: 6px; text-align: center; border: 1px solid #dee2e6;">
+                                                    <span t-if="m.esta_retrasado" class="badge badge-danger" style="background-color: #dc3545; color: white; padding: 2px 5px; border-radius: 2px; font-size: 9px;">
+                                                        Retrasado
+                                                    </span>
+                                                    <span t-else="" class="badge badge-success" style="background-color: #28a745; color: white; padding: 2px 5px; border-radius: 2px; font-size: 9px;">
+                                                        A Tiempo
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <!-- Pie de página del Reporte -->
+                            <div style="margin-top: 40px; border-top: 1px solid #dee2e6; padding-top: 15px; text-align: center; font-size: 9px; color: #888;">
+                                <p style="margin: 0 0 3px 0;">✓ Reporte General de Operaciones de Soporte Técnico</p>
+                                <p style="margin: 0;">Generado automáticamente por TechStore el <span t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y a las %H:%M:%S')"/></p>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

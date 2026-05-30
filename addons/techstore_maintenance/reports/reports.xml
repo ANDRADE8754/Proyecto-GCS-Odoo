@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- 1. Orden de Mantenimiento -->
+        <record id="action_report_mantenimiento_orden" model="ir.actions.report">
+            <field name="name">Orden de Mantenimiento</field>
+            <field name="model">techstore.mantenimiento</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">techstore_maintenance.report_mantenimiento_orden</field>
+            <field name="report_file">techstore_maintenance.report_mantenimiento_orden</field>
+            <field name="print_report_name">'Orden_Mantenimiento_%s' % (object.id_mantenimiento)</field>
+            <field name="binding_model_id" ref="model_techstore_mantenimiento"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- 2. Certificado de Entrega -->
+        <record id="action_report_certificado_entrega" model="ir.actions.report">
+            <field name="name">Certificado de Entrega</field>
+            <field name="model">techstore.mantenimiento</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">techstore_maintenance.report_certificado_entrega</field>
+            <field name="report_file">techstore_maintenance.report_certificado_entrega</field>
+            <field name="print_report_name">'Certificado_Entrega_%s' % (object.id_mantenimiento)</field>
+            <field name="binding_model_id" ref="model_techstore_mantenimiento"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- 3. Historial Técnico del Equipo -->
+        <record id="action_report_equipo_historial" model="ir.actions.report">
+            <field name="name">Historial Técnico del Equipo</field>
+            <field name="model">techstore.equipo</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">techstore_maintenance.report_equipo_historial</field>
+            <field name="report_file">techstore_maintenance.report_equipo_historial</field>
+            <field name="print_report_name">'Historial_Equipo_%s' % (object.serial)</field>
+            <field name="binding_model_id" ref="model_techstore_equipo"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- 4. Reporte General (desde Wizard) -->
+        <record id="action_reporte_general_pdf" model="ir.actions.report">
+            <field name="name">Reporte General de Mantenimientos</field>
+            <field name="model">techstore.reporte.wizard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">techstore_maintenance.reporte_general_pdf_template</field>
+            <field name="report_file">techstore_maintenance.reporte_general_pdf_template</field>
+            <field name="print_report_name">'Reporte_General_Mantenimientos'</field>
+        </record>
+    </data>
+</odoo>
