@@ -22,7 +22,8 @@ class TechstoreEstado(models.Model):
             ('diagnostico', 'Diagnóstico'),
             ('reparacion', 'Reparación'),
             ('esperando_repuestos', 'Esperando Repuestos'),
-            ('finalizado', 'Finalizado'),
+            ('control_calidad', 'Control de Calidad'),
+            ('listo_entrega', 'Listo para Entrega'),
             ('entregado', 'Entregado')
         ],
         string='Nombre del Estado',
@@ -54,7 +55,7 @@ class TechstoreEstado(models.Model):
     def _compute_es_estado_final(self):
         """Determina si es un estado final"""
         for record in self:
-            record.es_estado_final = record.nombre_estado in ['finalizado', 'entregado']
+            record.es_estado_final = record.nombre_estado in ['listo_entrega', 'entregado']
 
     def __str__(self):
         # Build a safe string representation without assuming a singleton

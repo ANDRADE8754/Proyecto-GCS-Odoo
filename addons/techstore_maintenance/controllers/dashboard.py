@@ -19,11 +19,12 @@ class TechstoreDashboardController(http.Controller):
         en_diagnostico = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'diagnostico')])
         en_reparacion = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'reparacion')])
         esperando_repuestos = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'esperando_repuestos')])
-        finalizados = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'finalizado')])
+        en_control_calidad = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'control_calidad')])
+        listo_entrega = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'listo_entrega')])
         entregados = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'entregado')])
 
-        en_proceso = nuevos + en_diagnostico + en_reparacion + esperando_repuestos
-        completados = finalizados + entregados
+        en_proceso = nuevos + en_diagnostico + en_reparacion + esperando_repuestos + en_control_calidad
+        completados = listo_entrega + entregados
 
         total_tecnicos = tecnico_obj.search_count([])
         tecnicos_disponibles = tecnico_obj.search_count([('disponibilidad', '=', True)])

@@ -159,8 +159,13 @@ class TechstoreMantenimiento(models.Model):
         compute='_compute_pasos_estado',
         help='Control visual para mostrar el siguiente paso permitido'
     )
-    puede_pasar_finalizado = fields.Boolean(
-        string='Puede pasar a Finalizado',
+    puede_pasar_control_calidad = fields.Boolean(
+        string='Puede pasar a Control de Calidad',
+        compute='_compute_pasos_estado',
+        help='Control visual para mostrar el siguiente paso permitido'
+    )
+    puede_pasar_listo_entrega = fields.Boolean(
+        string='Puede pasar a Listo para Entrega',
         compute='_compute_pasos_estado',
         help='Control visual para mostrar el siguiente paso permitido'
     )
@@ -168,6 +173,16 @@ class TechstoreMantenimiento(models.Model):
         string='Puede pasar a Entregado',
         compute='_compute_pasos_estado',
         help='Control visual para mostrar el siguiente paso permitido'
+    )
+
+    fecha_pausa_repuestos = fields.Datetime(
+        string='Fecha Pausa por Repuestos',
+        help='Fecha en que se pausó el mantenimiento por falta de repuestos (para pausar métricas SLA)'
+    )
+    tiempo_pausado_horas = fields.Float(
+        string='Tiempo Pausado (Horas)',
+        default=0.0,
+        help='Horas acumuladas en estado Esperando Repuestos (excluidas del SLA)'
     )
     
     es_tecnico_jefe = fields.Boolean(
@@ -206,13 +221,16 @@ class TechstoreMantenimiento(models.Model):
         help='Indica si el mantenimiento está en estado nuevo'
     )
 
+    # Flujo de estados con bifurcación en 'reparacion':
+    # nuevo → diagnostico → reparacion → [esperando_repuestos ↔ reparacion] → control_calidad → listo_entrega → entregado
     _SECUENCIA_ESTADOS = {
-        'nuevo': 'diagnostico',
-        'diagnostico': 'reparacion',
-        'reparacion': 'esperando_repuestos',
-        'esperando_repuestos': 'finalizado',
-        'finalizado': 'entregado',
-        'entregado': False,
+        'nuevo': ['diagnostico'],
+        'diagnostico': ['reparacion'],
+        'reparacion': ['esperando_repuestos', 'control_calidad'],
+        'esperando_repuestos': ['reparacion'],  # Vuelve a reparación cuando llegan repuestos
+        'control_calidad': ['listo_entrega'],
+        'listo_entrega': ['entregado'],
+        'entregado': [],
     }
 
     _sql_constraints = [
@@ -346,10 +364,11 @@ class TechstoreMantenimiento(models.Model):
         for record in self:
             estado_actual = record.id_estado.nombre_estado if record.id_estado else 'nuevo'
             record.puede_pasar_diagnostico = estado_actual == 'nuevo'
-            record.puede_pasar_reparacion = estado_actual == 'diagnostico'
+            record.puede_pasar_reparacion = estado_actual in ('diagnostico', 'esperando_repuestos')
             record.puede_pasar_esperando_repuestos = estado_actual == 'reparacion'
-            record.puede_pasar_finalizado = estado_actual == 'esperando_repuestos'
-            record.puede_pasar_entregado = estado_actual == 'finalizado'
+            record.puede_pasar_control_calidad = estado_actual == 'reparacion'
+            record.puede_pasar_listo_entrega = estado_actual == 'control_calidad'
+            record.puede_pasar_entregado = estado_actual == 'listo_entrega'
 
     @api.depends()
     def _compute_es_tecnico_jefe(self):
@@ -523,12 +542,12 @@ class TechstoreMantenimiento(models.Model):
             if nuevo_estado and nuevo_estado.exists():
                 for record in self:
                     estado_actual = record.id_estado.nombre_estado if record.id_estado else 'nuevo'
-                    estado_siguiente = self._SECUENCIA_ESTADOS.get(estado_actual)
-                    if nuevo_estado.nombre_estado != estado_siguiente and nuevo_estado.nombre_estado != estado_actual:
+                    estados_permitidos = self._SECUENCIA_ESTADOS.get(estado_actual, [])
+                    if nuevo_estado.nombre_estado not in estados_permitidos and nuevo_estado.nombre_estado != estado_actual:
                         raise ValidationError(
                             _('Debes mover el mantenimiento en secuencia. Desde "%s" solo puedes pasar a "%s".') % (
                                 estado_actual,
-                                estado_siguiente or _('ninguno'),
+                                ', '.join(estados_permitidos) or _('ninguno'),
                             )
                         )
                     if nuevo_estado.nombre_estado == 'diagnostico' and not (vals.get('ced_tecnico') or record.ced_tecnico):
@@ -557,9 +576,13 @@ class TechstoreMantenimiento(models.Model):
         self.ensure_one()
         return self._open_state_wizard('esperando_repuestos')
 
-    def action_set_finalizado(self):
+    def action_set_control_calidad(self):
         self.ensure_one()
-        return self._open_state_wizard('finalizado')
+        return self._open_state_wizard('control_calidad')
+
+    def action_set_listo_entrega(self):
+        self.ensure_one()
+        return self._open_state_wizard('listo_entrega')
 
     def action_set_entregado(self):
         self.ensure_one()
@@ -590,11 +613,11 @@ class TechstoreMantenimiento(models.Model):
             raise ValidationError(_('La justificación es obligatoria para cambiar el estado.'))
 
         estado_actual = self.id_estado.nombre_estado if self.id_estado else 'nuevo'
-        estado_siguiente = self._SECUENCIA_ESTADOS.get(estado_actual)
-        if estado_objetivo != estado_siguiente:
+        estados_permitidos = self._SECUENCIA_ESTADOS.get(estado_actual, [])
+        if estado_objetivo not in estados_permitidos:
             raise ValidationError(_('Debes seguir la secuencia de estados. Desde "%s" solo puedes pasar a "%s".') % (
                 estado_actual,
-                estado_siguiente or _('ninguno'),
+                ', '.join(estados_permitidos) or _('ninguno'),
             ))
 
         estado = self.env['techstore.estado'].search([('nombre_estado', '=', estado_objetivo)], limit=1)
@@ -611,7 +634,17 @@ class TechstoreMantenimiento(models.Model):
         elif tecnico_id:
             valores['ced_tecnico'] = tecnico_id.id
 
-        if estado_objetivo in ('finalizado', 'entregado') and not self.fecha_entrega:
+        # Pausar/reanudar reloj SLA para Esperando Repuestos
+        if estado_objetivo == 'esperando_repuestos':
+            valores['fecha_pausa_repuestos'] = fields.Datetime.now()
+        elif estado_actual == 'esperando_repuestos' and estado_objetivo == 'reparacion':
+            # Calcular tiempo pausado y acumularlo
+            if self.fecha_pausa_repuestos:
+                delta = datetime.now() - self.fecha_pausa_repuestos.replace(tzinfo=None)
+                valores['tiempo_pausado_horas'] = self.tiempo_pausado_horas + round(delta.total_seconds() / 3600, 2)
+                valores['fecha_pausa_repuestos'] = False
+
+        if estado_objetivo in ('listo_entrega', 'entregado') and not self.fecha_entrega:
             valores['fecha_entrega'] = fields.Datetime.now()
 
         self.write(valores)

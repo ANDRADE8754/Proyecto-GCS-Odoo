@@ -34,24 +34,28 @@
                         <field name="puede_pasar_diagnostico" invisible="1"/>
                         <field name="puede_pasar_reparacion" invisible="1"/>
                         <field name="puede_pasar_esperando_repuestos" invisible="1"/>
-                        <field name="puede_pasar_finalizado" invisible="1"/>
+                        <field name="puede_pasar_control_calidad" invisible="1"/>
+                        <field name="puede_pasar_listo_entrega" invisible="1"/>
                         <field name="puede_pasar_entregado" invisible="1"/>
                         <button string="Guardar" special="save" class="btn-primary oe_highlight"/>
                         <button string="Cancelar" special="cancel" class="btn-secondary"/>
                         <!-- Recepcionista/Jefe Técnico/Gerencia: Pasar a Diagnóstico -->
-                        <button name="action_set_diagnostico" type="object" string="Diagnóstico" class="btn-primary"
+                        <button name="action_set_diagnostico" type="object" string="→ Diagnóstico" class="btn-primary"
                                 groups="techstore_maintenance.techstore_group_receptionist,techstore_maintenance.techstore_group_technical_boss,techstore_maintenance.techstore_group_manager"/>
                         <!-- Técnico/Jefe Técnico: Pasar a Reparación -->
-                        <button name="action_set_reparacion" type="object" string="Reparación" class="btn-primary"
+                        <button name="action_set_reparacion" type="object" string="→ Reparación" class="btn-primary"
                                 groups="techstore_maintenance.techstore_group_technician,techstore_maintenance.techstore_group_technical_boss,techstore_maintenance.techstore_group_manager"/>
                         <!-- Técnico: Marcar Esperando Repuestos -->
-                        <button name="action_set_esperando_repuestos" type="object" string="Esperando Repuestos" class="btn-secondary"
+                        <button name="action_set_esperando_repuestos" type="object" string="⏸ Esperando Repuestos" class="btn-warning"
                                 groups="techstore_maintenance.techstore_group_technician,techstore_maintenance.techstore_group_technical_boss,techstore_maintenance.techstore_group_manager"/>
-                        <!-- Jefe Técnico/Gerencia: Finalizar -->
-                        <button name="action_set_finalizado" type="object" string="Finalizar" class="btn-success"
+                        <!-- Jefe Técnico/Gerencia: Control de Calidad -->
+                        <button name="action_set_control_calidad" type="object" string="→ Control de Calidad" class="btn-info"
+                                groups="techstore_maintenance.techstore_group_technical_boss,techstore_maintenance.techstore_group_manager"/>
+                        <!-- Jefe Técnico/Gerencia: Listo para Entrega -->
+                        <button name="action_set_listo_entrega" type="object" string="✓ Listo para Entrega" class="btn-success"
                                 groups="techstore_maintenance.techstore_group_technical_boss,techstore_maintenance.techstore_group_manager"/>
                         <!-- Recepcionista/Gerencia: Entregar -->
-                        <button name="action_set_entregado" type="object" string="Entregar" class="btn-success"
+                        <button name="action_set_entregado" type="object" string="✓ Entregar al Cliente" class="btn-success"
                                 groups="techstore_maintenance.techstore_group_receptionist,techstore_maintenance.techstore_group_manager"/>
                     </header>
                     <sheet>
@@ -93,7 +97,7 @@
                                 <field name="id_prioridad" required="1" options="{'no_create': True}" readonly="0"/>
                             </group>
                             <group string="Estado">
-                                <field name="id_estado" readonly="1" widget="statusbar" statusbar_visible="nuevo,diagnostico,reparacion,esperando_repuestos,finalizado,entregado" options="{'no_create': True, 'no_create_edit': True}" nolabel="1" colspan="2"/>
+                                <field name="id_estado" readonly="1" widget="statusbar" statusbar_visible="nuevo,diagnostico,reparacion,esperando_repuestos,control_calidad,listo_entrega,entregado" options="{'no_create': True, 'no_create_edit': True}" nolabel="1" colspan="2"/>
                             </group>
                             <group string="Fechas y Control">
                                 <field name="fecha_ingreso" readonly="1"/>
@@ -191,7 +195,8 @@
                     <filter name="filter_diagnostico" string="En Diagnóstico" domain="[('nombre_estado', '=', 'diagnostico')]"/>
                     <filter name="filter_reparacion" string="En Reparación" domain="[('nombre_estado', '=', 'reparacion')]"/>
                     <filter name="filter_esperando" string="Esperando Repuestos" domain="[('nombre_estado', '=', 'esperando_repuestos')]"/>
-                    <filter name="filter_finalizado" string="Finalizados" domain="[('nombre_estado', '=', 'finalizado')]"/>
+                    <filter name="filter_control_calidad" string="Control de Calidad" domain="[('nombre_estado', '=', 'control_calidad')]"/>
+                    <filter name="filter_listo_entrega" string="Listo para Entrega" domain="[('nombre_estado', '=', 'listo_entrega')]"/>
                     <filter name="filter_entregado" string="Entregados" domain="[('nombre_estado', '=', 'entregado')]"/>
                     <separator/>
                     <filter name="filter_retrasado" string="Retrasados" domain="[('esta_retrasado', '=', True)]"/>

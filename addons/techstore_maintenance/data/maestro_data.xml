@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <!-- Registros de Estados -->
         <record id="techstore_estado_nuevo" model="techstore.estado">
             <field name="id_estado">EST-001</field>
@@ -24,17 +23,23 @@
         <record id="techstore_estado_esperando_repuestos" model="techstore.estado">
             <field name="id_estado">EST-004</field>
             <field name="nombre_estado">esperando_repuestos</field>
+            <field name="secuencia">35</field>
+        </record>
+
+        <record id="techstore_estado_control_calidad" model="techstore.estado">
+            <field name="id_estado">EST-005</field>
+            <field name="nombre_estado">control_calidad</field>
             <field name="secuencia">40</field>
         </record>
 
-        <record id="techstore_estado_finalizado" model="techstore.estado">
-            <field name="id_estado">EST-005</field>
-            <field name="nombre_estado">finalizado</field>
+        <record id="techstore_estado_listo_entrega" model="techstore.estado">
+            <field name="id_estado">EST-006</field>
+            <field name="nombre_estado">listo_entrega</field>
             <field name="secuencia">50</field>
         </record>
 
         <record id="techstore_estado_entregado" model="techstore.estado">
-            <field name="id_estado">EST-006</field>
+            <field name="id_estado">EST-007</field>
             <field name="nombre_estado">entregado</field>
             <field name="secuencia">60</field>
         </record>
