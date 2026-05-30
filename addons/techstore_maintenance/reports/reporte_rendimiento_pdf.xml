@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="reporte_rendimiento_pdf_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="wizard">
+                    <t t-set="rend" t-value="wizard.get_rendimiento_tecnico()"/>
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333;">
+                            
+                            <!-- Cabecera del Reporte -->
+                            <div style="border-bottom: 3px solid #17a2b8; padding-bottom: 10px; margin-bottom: 20px;">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h2 style="color: #17a2b8; font-weight: bold; margin: 0;">
+                                            📈 REPORTE DE RENDIMIENTO POR TÉCNICO
+                                        </h2>
+                                        <p style="color: #666; margin: 5px 0 0 0; font-size: 13px;">
+                                            TechStore - Control de Carga de Trabajo y Eficiencia de Técnicos
+                                        </p>
+                                    </div>
+                                    <div class="col-4 text-right" style="font-size: 12px; color: #555;">
+                                        <strong>Período:</strong><br/>
+                                        Desde: <span t-field="wizard.fecha_inicio" t-options="{'widget': 'date'}"/><br/>
+                                        Hasta: <span t-field="wizard.fecha_fin" t-options="{'widget': 'date'}"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tarjetas KPI Resumen -->
+                            <div class="row text-center" style="margin-bottom: 25px;">
+                                <div class="col-6">
+                                    <div style="background-color: #f0fbfc; border-left: 5px solid #17a2b8; border-radius: 6px; padding: 15px;">
+                                        <h6 style="color: #17a2b8; margin: 0; font-size: 11px; text-transform: uppercase; font-weight: bold;">Técnicos Evaluados</h6>
+                                        <p style="margin: 8px 0 0 0; font-size: 28px; font-weight: bold; color: #111;">
+                                            <span t-out="rend['total_tecnicos']"/>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div style="background-color: #fcfcf0; border-left: 5px solid #ffc107; border-radius: 6px; padding: 15px;">
+                                        <h6 style="color: #b58105; margin: 0; font-size: 11px; text-transform: uppercase; font-weight: bold;">Mantenimientos Totales en Rango</h6>
+                                        <p style="margin: 8px 0 0 0; font-size: 28px; font-weight: bold; color: #111;">
+                                            <span t-out="rend['total_mantenimientos']"/>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Listado de Rendimiento -->
+                            <h4 style="color: #17a2b8; border-bottom: 2px solid #eef2f7; padding-bottom: 6px; margin-bottom: 15px; font-size: 15px; font-weight: bold;">
+                                📊 Desglose de Eficiencia y Carga de Trabajo
+                            </h4>
+
+                            <table class="table table-sm table-striped" style="font-size: 11px; width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background-color: #17a2b8; color: white;">
+                                        <th style="padding: 8px; text-align: left; border: 1px solid #dee2e6;">Técnico</th>
+                                        <th style="padding: 8px; text-align: left; border: 1px solid #dee2e6;">Especialidad</th>
+                                        <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">Estado</th>
+                                        <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">Carga Actual</th>
+                                        <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">Total Asignados</th>
+                                        <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">Completados</th>
+                                        <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">En Proceso</th>
+                                        <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">Promedio (Hrs)</th>
+                                        <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">Retrasados</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="rend['rendimiento']" t-as="r">
+                                        <tr>
+                                            <td style="padding: 8px; font-weight: bold; border: 1px solid #dee2e6;">
+                                                <span t-out="r['nombre']"/>
+                                            </td>
+                                            <td style="padding: 8px; border: 1px solid #dee2e6;">
+                                                <span t-out="r['especialidad']"/>
+                                            </td>
+                                            <td style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">
+                                                <span t-if="r['disponible']" class="badge" style="background-color: #28a745; color: white; padding: 2px 6px; border-radius: 4px; font-size: 9px;">Disponible</span>
+                                                <span t-else="" class="badge" style="background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 4px; font-size: 9px;">No Disp.</span>
+                                            </td>
+                                            <td style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold;">
+                                                <span t-attf-style="color: #{r['carga_actual'] &gt; 5 and '#dc3545' or r['carga_actual'] &gt;= 3 and '#ffc107' or '#28a745'}">
+                                                    <span t-out="r['carga_actual']"/>
+                                                </span>
+                                            </td>
+                                            <td style="padding: 8px; text-align: center; border: 1px solid #dee2e6;" t-out="r['total_asignados']"/>
+                                            <td style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold; color: #28a745;" t-out="r['completados']"/>
+                                            <td style="padding: 8px; text-align: center; border: 1px solid #dee2e6; color: #6c757d;" t-out="r['en_proceso']"/>
+                                            <td style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold;" t-out="r['promedio_horas']"/>
+                                            <td style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold;">
+                                                <span t-if="r['retrasados'] &gt; 0" style="color: #dc3545;">
+                                                    <span t-out="r['retrasados']"/> ⚠️
+                                                </span>
+                                                <span t-else="" style="color: #28a745;">0</span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <!-- Pie de página -->
+                            <div style="margin-top: 40px; border-top: 1px solid #dee2e6; padding-top: 15px; text-align: center; font-size: 9px; color: #888;">
+                                <p style="margin: 0 0 3px 0;">✓ Reporte de Rendimiento y Desempeño Operativo de Personal Técnico</p>
+                                <p style="margin: 0;">Generado automáticamente por TechStore el <span t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y a las %H:%M:%S')"/></p>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

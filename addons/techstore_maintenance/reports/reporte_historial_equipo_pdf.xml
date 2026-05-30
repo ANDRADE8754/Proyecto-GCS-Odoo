@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="reporte_historial_equipo_pdf_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="wizard">
+                    <t t-set="hist" t-value="wizard.get_historial_equipo()"/>
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333;">
+                            
+                            <!-- Cabecera del Reporte -->
+                            <div style="border-bottom: 3px solid #6f42c1; padding-bottom: 10px; margin-bottom: 20px;">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h2 style="color: #6f42c1; font-weight: bold; margin: 0;">
+                                            📜 HISTORIAL CLÍNICO Y TÉCNICO DE EQUIPOS
+                                        </h2>
+                                        <p style="color: #666; margin: 5px 0 0 0; font-size: 13px;">
+                                            TechStore - Hoja de Vida y Trazabilidad de Reparaciones de Equipos
+                                        </p>
+                                    </div>
+                                    <div class="col-4 text-right" style="font-size: 12px; color: #555;">
+                                        <strong>Serial Buscado:</strong> <span t-out="hist['serial_buscado']"/><br/>
+                                        <strong>Equipos Encontrados:</strong> <span t-out="hist['total_equipos']"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Listado de Equipos e Historiales -->
+                            <t t-if="not hist['historial']">
+                                <div style="background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px; padding: 15px; text-align: center; color: #856404; font-size: 13px;">
+                                    <i class="fa fa-info-circle"></i> No se encontraron equipos registrados con los criterios seleccionados.
+                                </div>
+                            </t>
+                            
+                            <t t-foreach="hist['historial']" t-as="eh">
+                                <div style="border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 30px; background-color: #fff; overflow: hidden; page-break-inside: avoid;">
+                                    
+                                    <!-- Cabecera de Ficha de Equipo -->
+                                    <div style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; padding: 12px 15px;">
+                                        <div class="row" style="font-size: 12px;">
+                                            <div class="col-6">
+                                                <h5 style="color: #6f42c1; margin: 0 0 5px 0; font-weight: bold;">
+                                                    💻 Equipo: <span t-out="eh['marca']"/> / <span t-out="eh['modelo']"/>
+                                                </h5>
+                                                <strong>Serial:</strong> <span t-out="eh['serial']"/><br/>
+                                                <strong>Tipo:</strong> <span t-out="eh['tipo']"/>
+                                            </div>
+                                            <div class="col-6 text-right">
+                                                <strong>ID Equipo:</strong> <span t-out="eh['id_equipo']"/><br/>
+                                                <strong>Cliente / Propietario:</strong> <span t-out="eh['cliente']"/><br/>
+                                                <strong>Total Reparaciones:</strong> <span class="badge badge-pill badge-primary" style="background-color: #6f42c1; color: white;" t-out="eh['total_mantenimientos']"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tabla de Mantenimientos del Equipo -->
+                                    <div style="padding: 15px;">
+                                        <t t-if="not eh['mantenimientos']">
+                                            <p style="margin: 0; color: #777; font-style: italic; font-size: 11px; text-align: center;">Este equipo no registra órdenes de mantenimiento.</p>
+                                        </t>
+                                        <t t-else="">
+                                            <table class="table table-sm table-bordered" style="font-size: 11px; margin-bottom: 0; width: 100%;">
+                                                <thead>
+                                                    <tr style="background-color: #6f42c1; color: white;">
+                                                        <th style="padding: 6px; width: 12%; text-align: center;">Orden</th>
+                                                        <th style="padding: 6px; width: 15%; text-align: center;">Ingreso</th>
+                                                        <th style="padding: 6px; width: 15%; text-align: center;">Entrega</th>
+                                                        <th style="padding: 6px; width: 20%;">Falla Reportada</th>
+                                                        <th style="padding: 6px; width: 23%;">Diagnóstico e Intervención</th>
+                                                        <th style="padding: 6px; width: 15%;">Técnico</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <t t-foreach="eh['mantenimientos']" t-as="m">
+                                                        <tr style="background-color: #fff;">
+                                                            <td style="padding: 6px; font-weight: bold; text-align: center; color: #dc3545;" t-out="m.id_mantenimiento"/>
+                                                            <td style="padding: 6px; text-align: center;" t-field="m.fecha_ingreso" t-options="{'widget': 'date'}"/>
+                                                            <td style="padding: 6px; text-align: center;">
+                                                                <span t-if="m.fecha_entrega" t-field="m.fecha_entrega" t-options="{'widget': 'date'}"/>
+                                                                <span t-else="" style="color: #ff9800; font-weight: bold;">En Proceso</span>
+                                                            </td>
+                                                            <td style="padding: 6px;" t-out="m.falla_reportada or '-'"/>
+                                                            <td style="padding: 6px;">
+                                                                <strong>Diag:</strong> <span t-out="m.diagnostico or 'Sin diagnóstico'"/><br/>
+                                                                <strong>Sol:</strong> <span t-out="m.solucion or 'Sin solución'"/>
+                                                            </td>
+                                                            <td style="padding: 6px;">
+                                                                <span t-if="m.ced_tecnico" t-out="m.ced_tecnico.nombre"/>
+                                                                <span t-else="" style="color: #999;">Sin asignar</span>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </tbody>
+                                            </table>
+                                        </t>
+                                    </div>
+
+                                </div>
+                            </t>
+
+                            <!-- Pie de página -->
+                            <div style="margin-top: 40px; border-top: 1px solid #dee2e6; padding-top: 15px; text-align: center; font-size: 9px; color: #888;">
+                                <p style="margin: 0 0 3px 0;">✓ Reporte Clínico e Historial Técnico de Dispositivos Electrónicos</p>
+                                <p style="margin: 0;">Generado automáticamente por TechStore el <span t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y a las %H:%M:%S')"/></p>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

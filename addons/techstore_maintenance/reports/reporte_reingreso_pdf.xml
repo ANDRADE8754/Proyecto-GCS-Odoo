@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="reporte_reingreso_pdf_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="wizard">
+                    <t t-set="reing" t-value="wizard.get_tasa_reingreso()"/>
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333;">
+                            
+                            <!-- Cabecera del Reporte -->
+                            <div style="border-bottom: 3px solid #dc3545; padding-bottom: 10px; margin-bottom: 20px;">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h2 style="color: #dc3545; font-weight: bold; margin: 0;">
+                                            🔄 REPORTE DE CONTROL DE CALIDAD Y TASA DE REINGRESO
+                                        </h2>
+                                        <p style="color: #666; margin: 5px 0 0 0; font-size: 13px;">
+                                            TechStore - Métrica Crítica de Eficacia Operativa y Garantías de Reparación
+                                        </p>
+                                    </div>
+                                    <div class="col-4 text-right" style="font-size: 12px; color: #555;">
+                                        <strong>Período:</strong><br/>
+                                        Desde: <span t-field="wizard.fecha_inicio" t-options="{'widget': 'date'}"/><br/>
+                                        Hasta: <span t-field="wizard.fecha_fin" t-options="{'widget': 'date'}"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tarjetas KPI Resumen -->
+                            <div class="row text-center" style="margin-bottom: 25px;">
+                                <div class="col-4">
+                                    <div style="background-color: #f8f9fa; border-left: 5px solid #6c757d; border-radius: 6px; padding: 15px;">
+                                        <h6 style="color: #6c757d; margin: 0; font-size: 11px; text-transform: uppercase; font-weight: bold;">Equipos Recibidos</h6>
+                                        <p style="margin: 8px 0 0 0; font-size: 28px; font-weight: bold; color: #111;">
+                                            <span t-out="reing['total_equipos_analizados']"/>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="background-color: #fdf4f4; border-left: 5px solid #dc3545; border-radius: 6px; padding: 15px;">
+                                        <h6 style="color: #dc3545; margin: 0; font-size: 11px; text-transform: uppercase; font-weight: bold;">Reingresos (&lt;= 30 Días)</h6>
+                                        <p style="margin: 8px 0 0 0; font-size: 28px; font-weight: bold; color: #111;">
+                                            <span t-out="reing['total_reingresos']"/>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="border-radius: 6px; padding: 15px; border-left: 5px solid;"
+                                         t-attf-style="background-color: #{reing['tasa_reingreso'] &lt; 5 and '#effcf1' or reing['tasa_reingreso'] &lt;= 10 and '#fcfcf0' or '#fdf4f4'}; border-left-color: #{reing['tasa_reingreso'] &lt; 5 and '#28a745' or reing['tasa_reingreso'] &lt;= 10 and '#ffc107' or '#dc3545'};">
+                                        <h6 style="margin: 0; font-size: 11px; text-transform: uppercase; font-weight: bold;"
+                                            t-attf-style="color: #{reing['tasa_reingreso'] &lt; 5 and '#28a745' or reing['tasa_reingreso'] &lt;= 10 and '#b58105' or '#dc3545'};">
+                                            Tasa de Reingreso
+                                        </h6>
+                                        <p style="margin: 8px 0 0 0; font-size: 28px; font-weight: bold; color: #111;">
+                                            <span t-out="reing['tasa_reingreso']"/>%
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Listado de Reingresos Detectados -->
+                            <h4 style="color: #dc3545; border-bottom: 2px solid #eef2f7; padding-bottom: 6px; margin-bottom: 15px; font-size: 15px; font-weight: bold;">
+                                ⚠️ Detalle de Casos de Reingreso por Falla Repetida
+                            </h4>
+
+                            <t t-if="not reing['reingresos']">
+                                <div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; padding: 15px; text-align: center; color: #155724; font-size: 13px;">
+                                    <i class="fa fa-check-circle"></i> <strong>¡Excelente calidad!</strong> No se detectaron reingresos de equipos durante este período. Todas las reparaciones han sido efectivas.
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <table class="table table-sm table-bordered" style="font-size: 11px; width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background-color: #dc3545; color: white;">
+                                            <th style="padding: 8px; width: 25%;">Equipo y Cliente</th>
+                                            <th style="padding: 8px; width: 30%;">1ra Intervención (Previa)</th>
+                                            <th style="padding: 8px; width: 30%;">Reingreso (Actual)</th>
+                                            <th style="padding: 8px; width: 15%; text-align: center;">Días Transcurridos</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="reing['reingresos']" t-as="r">
+                                            <tr style="background-color: #fff8f8;">
+                                                <!-- Datos del Equipo -->
+                                                <td style="padding: 8px; border: 1px solid #dee2e6; vertical-align: top;">
+                                                    <strong>[<span t-out="r['serial']"/>]</strong><br/>
+                                                    <span t-out="r['equipo'].marca"/> / <span t-out="r['equipo'].modelo"/><br/>
+                                                    <span style="color: #666; font-size: 10px;">Cliente: <span t-out="r['cliente']"/></span>
+                                                </td>
+                                                <!-- Intervención Previa -->
+                                                <td style="padding: 8px; border: 1px solid #dee2e6; vertical-align: top;">
+                                                    <strong style="color: #28a745;">Orden: <span t-out="r['mantenimiento_previo']"/></strong><br/>
+                                                    <strong>Falla:</strong> <span t-out="r['falla_previa']"/><br/>
+                                                    <span style="color: #666; font-size: 10px;">Entregado el: <span t-out="r['fecha_entrega_previo']" t-options="{'widget': 'date'}"/></span>
+                                                </td>
+                                                <!-- Intervención Actual (Reingreso) -->
+                                                <td style="padding: 8px; border: 1px solid #dee2e6; vertical-align: top;">
+                                                    <strong style="color: #dc3545;">Orden: <span t-out="r['mantenimiento_actual']"/></strong><br/>
+                                                    <strong>Falla:</strong> <span t-out="r['falla_actual']"/><br/>
+                                                    <span style="color: #666; font-size: 10px;">Ingresado el: <span t-out="r['fecha_ingreso_actual']" t-options="{'widget': 'date'}"/></span>
+                                                </td>
+                                                <!-- Días de Diferencia -->
+                                                <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; vertical-align: middle; font-weight: bold; color: #dc3545; font-size: 13px; background-color: #fdf2f2;">
+                                                    <span t-out="r['dias_reingreso']"/> días
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <!-- Pie de página -->
+                            <div style="margin-top: 40px; border-top: 1px solid #dee2e6; padding-top: 15px; text-align: center; font-size: 9px; color: #888;">
+                                <p style="margin: 0 0 3px 0;">✓ Reporte de Garantías, Reingresos y Control de Calidad Operativa</p>
+                                <p style="margin: 0;">Generado automáticamente por TechStore el <span t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y a las %H:%M:%S')"/></p>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="reporte_cuellos_botella_pdf_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="wizard">
+                    <t t-set="bot" t-value="wizard.get_cuellos_botella()"/>
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333;">
+                            
+                            <!-- Cabecera del Reporte -->
+                            <div style="border-bottom: 3px solid #fd7e14; padding-bottom: 10px; margin-bottom: 20px;">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h2 style="color: #fd7e14; font-weight: bold; margin: 0;">
+                                            ⏳ REPORTE DE CUELLOS DE BOTELLA Y FLUJO DE TRABAJO
+                                        </h2>
+                                        <p style="color: #666; margin: 5px 0 0 0; font-size: 13px;">
+                                            TechStore - Diagnóstico de Tiempos de Bloqueo, Estancamiento y Retraso en Taller
+                                        </p>
+                                    </div>
+                                    <div class="col-4 text-right" style="font-size: 12px; color: #555;">
+                                        <strong>Fecha Emisión:</strong> <span t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/><br/>
+                                        <strong>Tickets en Taller:</strong> <span t-out="bot['total_activos']"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tarjetas KPI Resumen -->
+                            <div class="row text-center" style="margin-bottom: 25px;">
+                                <div class="col-4">
+                                    <div style="background-color: #fef5ef; border-left: 5px solid #fd7e14; border-radius: 6px; padding: 15px;">
+                                        <h6 style="color: #fd7e14; margin: 0; font-size: 11px; text-transform: uppercase; font-weight: bold;">Tickets Activos (Sin Entregar)</h6>
+                                        <p style="margin: 8px 0 0 0; font-size: 28px; font-weight: bold; color: #111;">
+                                            <span t-out="bot['total_activos']"/>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="background-color: #fdf4f4; border-left: 5px solid #dc3545; border-radius: 6px; padding: 15px;">
+                                        <h6 style="color: #dc3545; margin: 0; font-size: 11px; text-transform: uppercase; font-weight: bold;">Tickets Retrasados Activos</h6>
+                                        <p style="margin: 8px 0 0 0; font-size: 28px; font-weight: bold; color: #111;">
+                                            <span t-out="bot['total_retrasados']"/>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="border-radius: 6px; padding: 15px; border-left: 5px solid;"
+                                         t-attf-style="background-color: #{bot['pct_retrasados'] &lt; 20 and '#effcf1' or bot['pct_retrasados'] &lt;= 40 and '#fcfcf0' or '#fdf4f4'}; border-left-color: #{bot['pct_retrasados'] &lt; 20 and '#28a745' or bot['pct_retrasados'] &lt;= 40 and '#ffc107' or '#dc3545'};">
+                                        <h6 style="margin: 0; font-size: 11px; text-transform: uppercase; font-weight: bold;"
+                                            t-attf-style="color: #{bot['pct_retrasados'] &lt; 20 and '#28a745' or bot['pct_retrasados'] &lt;= 40 and '#b58105' or '#dc3545'};">
+                                            Tasa de Retraso Activa
+                                        </h6>
+                                        <p style="margin: 8px 0 0 0; font-size: 28px; font-weight: bold; color: #111;">
+                                            <span t-out="bot['pct_retrasados']"/>%
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tabla de Estados y Permanencia -->
+                            <h4 style="color: #fd7e14; border-bottom: 2px solid #eef2f7; padding-bottom: 6px; margin-bottom: 15px; font-size: 15px; font-weight: bold;">
+                                📊 Tiempos de Permanencia y Congestión por Estado
+                            </h4>
+                            <table class="table table-sm table-striped" style="font-size: 11px; width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                                <thead>
+                                    <tr style="background-color: #fd7e14; color: white;">
+                                        <th style="padding: 8px; text-align: left; border: 1px solid #dee2e6;">Estado (Etapa)</th>
+                                        <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">Tickets Activos</th>
+                                        <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">Tickets Retrasados</th>
+                                        <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">Permanencia Promedio</th>
+                                        <th style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">Nivel de Alerta</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="bot['cuellos']" t-as="c">
+                                        <tr>
+                                            <td style="padding: 8px; font-weight: bold; border: 1px solid #dee2e6;">
+                                                <span t-out="c['nombre']"/>
+                                            </td>
+                                            <td style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold;" t-out="c['total']"/>
+                                            <td style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold; color: #dc3545;" t-out="c['retrasados']"/>
+                                            <td style="padding: 8px; text-align: center; border: 1px solid #dee2e6; font-weight: bold;">
+                                                <span t-out="c['promedio_permanencia_horas']"/> Hrs
+                                            </td>
+                                            <td style="padding: 8px; text-align: center; border: 1px solid #dee2e6;">
+                                                <span t-if="c['es_critico']" class="badge" style="background-color: #dc3545; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 9px;">CRÍTICO ⚠️</span>
+                                                <span t-else="" class="badge" style="background-color: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 9px;">ESTABLE ✓</span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <!-- Detalle de Tickets por Estado -->
+                            <h4 style="color: #fd7e14; border-bottom: 2px solid #eef2f7; padding-bottom: 6px; margin-bottom: 15px; font-size: 15px; font-weight: bold;">
+                                🔍 Listado de Órdenes Activas por Estado
+                            </h4>
+                            <t t-foreach="bot['cuellos']" t-as="c">
+                                <t t-if="c['total'] &gt; 0">
+                                    <div style="margin-bottom: 20px; page-break-inside: avoid;">
+                                        <h5 style="color: #333; font-weight: bold; font-size: 12px; background-color: #eef2f7; padding: 6px 10px; border-left: 4px solid #fd7e14; margin-bottom: 8px;">
+                                            Etapa: <span t-out="c['nombre']"/> (<span t-out="c['total']"/> ordenes activas)
+                                        </h5>
+                                        <table class="table table-sm table-bordered" style="font-size: 10px; width: 100%;">
+                                            <thead>
+                                                <tr style="background-color: #f8f9fa;">
+                                                    <th style="padding: 5px; width: 12%; text-align: center;">Orden ID</th>
+                                                    <th style="padding: 5px; width: 20%;">Cliente</th>
+                                                    <th style="padding: 5px; width: 25%;">Equipo</th>
+                                                    <th style="padding: 5px; width: 15%; text-align: center;">Prioridad</th>
+                                                    <th style="padding: 5px; width: 15%; text-align: center;">Fecha Ingreso</th>
+                                                    <th style="padding: 5px; width: 13%; text-align: center;">Estado SLA</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="c['mantenimientos']" t-as="m">
+                                                    <tr t-attf-style="background-color: #{m.esta_retrasado and '#fdf2f2' or '#ffffff'}">
+                                                        <td style="padding: 5px; font-weight: bold; text-align: center; color: #dc3545;" t-out="m.id_mantenimiento"/>
+                                                        <td style="padding: 5px;" t-out="m.ced_cliente.nombre"/>
+                                                        <td style="padding: 5px;">
+                                                            [<span t-out="m.id_equipo.serial"/>] <span t-out="m.id_equipo.marca"/> / <span t-out="m.id_equipo.modelo"/>
+                                                        </td>
+                                                        <td style="padding: 5px; text-align: center;" t-out="m.id_prioridad.get_nombre_display()"/>
+                                                        <td style="padding: 5px; text-align: center;" t-field="m.fecha_ingreso" t-options="{'widget': 'date'}"/>
+                                                        <td style="padding: 5px; text-align: center; font-weight: bold;">
+                                                            <span t-if="m.esta_retrasado" style="color: #dc3545;">RETRASADO ⚠️</span>
+                                                            <span t-else="" style="color: #28a745;">A TIEMPO</span>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </t>
+                            </t>
+
+                            <!-- Pie de página -->
+                            <div style="margin-top: 40px; border-top: 1px solid #dee2e6; padding-top: 15px; text-align: center; font-size: 9px; color: #888;">
+                                <p style="margin: 0 0 3px 0;">✓ Reporte Diagnóstico del Flujo de Trabajo y Cuellos de Botella Operacionales</p>
+                                <p style="margin: 0;">Generado automáticamente por TechStore el <span t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y a las %H:%M:%S')"/></p>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

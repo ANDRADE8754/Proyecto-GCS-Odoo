@@ -12,15 +12,28 @@
                             <h2>Filtros del Reporte</h2>
                         </div>
                         <group>
-                            <group string="Rango de Fechas">
+                            <group string="Configuración del Reporte">
+                                <field name="tipo_reporte"/>
+                                <field name="serial_equipo" attrs="{'invisible': [('tipo_reporte', '!=', 'historial_equipo')], 'required': [('tipo_reporte', '=', 'historial_equipo')]}"/>
+                            </group>
+                            <group string="Rango de Fechas" attrs="{'invisible': [('tipo_reporte', '=', 'historial_equipo')]}">
                                 <field name="fecha_inicio" required="1"/>
                                 <field name="fecha_fin" required="1"/>
                             </group>
-                            <group string="Filtros Opcionales">
+                        </group>
+                        <group string="Filtros del Reporte" attrs="{'invisible': [('tipo_reporte', '=', 'historial_equipo')]}">
+                            <group>
                                 <field name="ced_tecnico" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="ced_cliente" options="{'no_create': True, 'no_open': True}"/>
+                            </group>
+                            <group>
                                 <field name="id_prioridad" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="id_estado" options="{'no_create': True, 'no_open': True}"/>
+                            </group>
+                        </group>
+                        <group string="Filtros del Historial Clínico" attrs="{'invisible': [('tipo_reporte', '!=', 'historial_equipo')]}">
+                            <group>
+                                <field name="ced_cliente" string="Cliente del Equipo" options="{'no_create': True, 'no_open': True}"/>
                             </group>
                         </group>
                     </sheet>

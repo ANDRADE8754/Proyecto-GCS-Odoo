@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="reporte_sla_pdf_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="wizard">
+                    <t t-set="sla" t-value="wizard.get_reporte_sla()"/>
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">
+                                📊 Reporte de Tiempos de Resolución (SLA)
+                            </h2>
+                            <p>
+                                <strong>Período:</strong>
+                                <span t-esc="wizard.fecha_inicio" t-options="{'widget': 'date'}"/> -
+                                <span t-esc="wizard.fecha_fin" t-options="{'widget': 'date'}"/>
+                            </p>
+
+                            <!-- Resumen Global -->
+                            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                                <div style="flex:1; background: #ecf0f1; padding: 15px; border-radius: 8px; text-align: center;">
+                                    <h4 style="margin:0; color:#7f8c8d;">Total Mantenimientos</h4>
+                                    <h2 style="margin:5px 0; color:#2c3e50;" t-esc="sla['total']"/>
+                                </div>
+                                <div style="flex:1; background: #ecf0f1; padding: 15px; border-radius: 8px; text-align: center;">
+                                    <h4 style="margin:0; color:#7f8c8d;">Entregados</h4>
+                                    <h2 style="margin:5px 0; color:#27ae60;" t-esc="sla['total_entregados']"/>
+                                </div>
+                                <div style="flex:1; background: #ecf0f1; padding: 15px; border-radius: 8px; text-align: center;">
+                                    <h4 style="margin:0; color:#7f8c8d;">Promedio Resolución</h4>
+                                    <h2 style="margin:5px 0; color:#2980b9;"><t t-esc="sla['promedio_horas']"/> hrs</h2>
+                                </div>
+                                <div style="flex:1; padding: 15px; border-radius: 8px; text-align: center;"
+                                     t-attf-style="background: #{sla['pct_cumplimiento_global'] >= 80 and '#d5f4e6' or sla['pct_cumplimiento_global'] >= 60 and '#fef9e7' or '#fadbd8'}">
+                                    <h4 style="margin:0; color:#7f8c8d;">Cumplimiento SLA</h4>
+                                    <h2 style="margin:5px 0;" t-attf-style="color: #{sla['pct_cumplimiento_global'] >= 80 and '#27ae60' or sla['pct_cumplimiento_global'] >= 60 and '#f39c12' or '#e74c3c'}">
+                                        <t t-esc="sla['pct_cumplimiento_global']"/>%
+                                    </h2>
+                                </div>
+                            </div>
+
+                            <!-- Desglose por Prioridad -->
+                            <h3 style="color: #2c3e50; margin-top: 25px;">Desglose por Prioridad</h3>
+                            <table class="table table-bordered table-sm" style="font-size: 12px;">
+                                <thead style="background: #34495e; color: white;">
+                                    <tr>
+                                        <th>Prioridad</th>
+                                        <th>SLA Máximo (hrs)</th>
+                                        <th>Total</th>
+                                        <th>Promedio (hrs)</th>
+                                        <th>Dentro SLA</th>
+                                        <th>Fuera SLA</th>
+                                        <th>% Cumplimiento</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="sla['sla_por_prioridad']" t-as="sp">
+                                        <tr>
+                                            <td>
+                                                <span t-attf-style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#{sp['color']}; margin-right:5px;"/>
+                                                <t t-esc="sp['nombre']"/>
+                                            </td>
+                                            <td t-esc="sp['tiempo_maximo']"/>
+                                            <td t-esc="sp['total']"/>
+                                            <td t-esc="sp['promedio_horas']"/>
+                                            <td style="color: #27ae60; font-weight: bold;" t-esc="sp['dentro_sla']"/>
+                                            <td style="color: #e74c3c; font-weight: bold;" t-esc="sp['fuera_sla']"/>
+                                            <td t-attf-style="font-weight:bold; color:#{sp['pct_cumplimiento'] >= 80 and '#27ae60' or '#e74c3c'}">
+                                                <t t-esc="sp['pct_cumplimiento']"/>%
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <!-- Mantenimientos Retrasados Activos -->
+                            <t t-if="sla['total_retrasados_activos'] > 0">
+                                <h3 style="color: #e74c3c; margin-top: 25px;">⚠️ Mantenimientos Retrasados Activos (<t t-esc="sla['total_retrasados_activos']"/>)</h3>
+                                <table class="table table-bordered table-sm" style="font-size: 11px;">
+                                    <thead style="background: #e74c3c; color: white;">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Cliente</th>
+                                            <th>Equipo</th>
+                                            <th>Prioridad</th>
+                                            <th>Estado</th>
+                                            <th>Fecha Ingreso</th>
+                                            <th>Fecha Estimada</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="sla['retrasados_activos']" t-as="r">
+                                            <tr style="background: #fce4e4;">
+                                                <td t-esc="r.id_mantenimiento"/>
+                                                <td t-esc="r.ced_cliente.nombre"/>
+                                                <td t-esc="r.id_equipo.id_equipo"/>
+                                                <td t-esc="r.id_prioridad.get_nombre_display()"/>
+                                                <td t-esc="r.id_estado.get_nombre_estado_display()"/>
+                                                <td t-esc="r.fecha_ingreso" t-options="{'widget': 'datetime'}"/>
+                                                <td t-esc="r.fecha_estimada_entrega" t-options="{'widget': 'datetime'}"/>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

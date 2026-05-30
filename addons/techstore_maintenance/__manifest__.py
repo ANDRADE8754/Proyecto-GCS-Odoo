@@ -23,6 +23,11 @@
         'reports/certificado_entrega.xml',
         'reports/equipo_historial.xml',
         'reports/reporte_general_pdf.xml',
+        'reports/reporte_sla_pdf.xml',
+        'reports/reporte_rendimiento_pdf.xml',
+        'reports/reporte_historial_equipo_pdf.xml',
+        'reports/reporte_reingreso_pdf.xml',
+        'reports/reporte_cuellos_botella_pdf.xml',
         # Vistas de negocio
         'views/dashboard_banner.xml',
         'views/equipo_views.xml',

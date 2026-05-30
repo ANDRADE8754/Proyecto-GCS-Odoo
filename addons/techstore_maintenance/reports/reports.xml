@@ -46,5 +46,55 @@
             <field name="report_file">techstore_maintenance.reporte_general_pdf_template</field>
             <field name="print_report_name">'Reporte_General_Mantenimientos'</field>
         </record>
+
+        <!-- 5. Reporte de SLA (desde Wizard) -->
+        <record id="action_reporte_sla_pdf" model="ir.actions.report">
+            <field name="name">Reporte de Tiempos de Resolución (SLA)</field>
+            <field name="model">techstore.reporte.wizard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">techstore_maintenance.reporte_sla_pdf_template</field>
+            <field name="report_file">techstore_maintenance.reporte_sla_pdf_template</field>
+            <field name="print_report_name">'Reporte_SLA_Mantenimientos'</field>
+        </record>
+
+        <!-- 6. Reporte de Rendimiento de Técnicos (desde Wizard) -->
+        <record id="action_reporte_rendimiento_pdf" model="ir.actions.report">
+            <field name="name">Reporte de Rendimiento por Técnico</field>
+            <field name="model">techstore.reporte.wizard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">techstore_maintenance.reporte_rendimiento_pdf_template</field>
+            <field name="report_file">techstore_maintenance.reporte_rendimiento_pdf_template</field>
+            <field name="print_report_name">'Reporte_Rendimiento_Tecnicos'</field>
+        </record>
+
+        <!-- 7. Reporte de Historial Clínico por Equipo (desde Wizard) -->
+        <record id="action_reporte_historial_equipo_pdf" model="ir.actions.report">
+            <field name="name">Reporte de Historial Clínico por Equipo</field>
+            <field name="model">techstore.reporte.wizard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">techstore_maintenance.reporte_historial_equipo_pdf_template</field>
+            <field name="report_file">techstore_maintenance.reporte_historial_equipo_pdf_template</field>
+            <field name="print_report_name">'Reporte_Historial_Clinico'</field>
+        </record>
+
+        <!-- 8. Reporte de Tasa de Reingreso (desde Wizard) -->
+        <record id="action_reporte_reingreso_pdf" model="ir.actions.report">
+            <field name="name">Reporte de Tasa de Reingreso</field>
+            <field name="model">techstore.reporte.wizard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">techstore_maintenance.reporte_reingreso_pdf_template</field>
+            <field name="report_file">techstore_maintenance.reporte_reingreso_pdf_template</field>
+            <field name="print_report_name">'Reporte_Tasa_Reingresos'</field>
+        </record>
+
+        <!-- 9. Reporte de Cuellos de Botella (desde Wizard) -->
+        <record id="action_reporte_cuellos_botella_pdf" model="ir.actions.report">
+            <field name="name">Reporte de Cuellos de Botella</field>
+            <field name="model">techstore.reporte.wizard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">techstore_maintenance.reporte_cuellos_botella_pdf_template</field>
+            <field name="report_file">techstore_maintenance.reporte_cuellos_botella_pdf_template</field>
+            <field name="print_report_name">'Reporte_Cuellos_Botella'</field>
+        </record>
     </data>
 </odoo>
