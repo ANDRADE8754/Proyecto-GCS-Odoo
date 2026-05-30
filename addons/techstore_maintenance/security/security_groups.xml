@@ -1,46 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Grupo: Recepcionista -->
-        <record id="techstore_group_receptionist" model="res.groups">
-            <field name="name">TechStore Recepcionista</field>
-            <field name="category_id" eval="False"/>
-            <field name="implied_ids" eval="[]"/>
+        <!-- ═══════════════════════════════════════════
+             CATEGORÍA DE APLICACIÓN
+        ═══════════════════════════════════════════ -->
+        <record id="module_category_techstore" model="ir.module.category">
+            <field name="name">TechStore Mantenimiento</field>
+            <field name="description">Categoría para los roles del módulo de mantenimientos TechStore</field>
+            <field name="sequence">20</field>
         </record>
 
-        <!-- Grupo: Técnico (hereda de Recepcionista) -->
+        <!-- ═══════════════════════════════════════════
+             GRUPOS DE SEGURIDAD (JERARQUÍA)
+             Recepcionista (base independiente)
+             Técnico (base independiente)
+             Jefe Técnico → hereda de Técnico
+             Gerencia/Administración → hereda de Jefe Técnico + Recepcionista
+             Administrador → hereda de Gerencia
+        ═══════════════════════════════════════════ -->
+
+        <!-- Grupo: Recepcionista / Asesor de Servicio -->
+        <record id="techstore_group_receptionist" model="res.groups">
+            <field name="name">Recepcionista</field>
+            <field name="category_id" ref="module_category_techstore"/>
+            <field name="comment">Contacto con el cliente, ingreso de datos y despacho. Puede crear/editar clientes, equipos y órdenes de mantenimiento. No puede eliminar registros.</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Grupo: Técnico -->
         <record id="techstore_group_technician" model="res.groups">
-            <field name="name">TechStore Técnico</field>
-            <field name="category_id" eval="False"/>
-            <field name="implied_ids" eval="[]"/>
+            <field name="name">Técnico</field>
+            <field name="category_id" ref="module_category_techstore"/>
+            <field name="comment">Operación y actualización de progreso. Acceso de lectura/escritura solo a los mantenimientos asignados. Puede actualizar estado, agregar notas técnicas y registrar repuestos.</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         </record>
 
         <!-- Grupo: Jefe Técnico (hereda de Técnico) -->
         <record id="techstore_group_technical_boss" model="res.groups">
-            <field name="name">TechStore Jefe Técnico</field>
-            <field name="category_id" eval="False"/>
-            <field name="implied_ids" eval="[]"/>
+            <field name="name">Jefe Técnico</field>
+            <field name="category_id" ref="module_category_techstore"/>
+            <field name="comment">Supervisión técnica. Ve todos los mantenimientos, puede reasignar técnicos, realizar control de calidad y acceder a reportes.</field>
+            <field name="implied_ids" eval="[(4, ref('techstore_group_technician'))]"/>
         </record>
 
-        <!-- Grupo: Gerencia (hereda de Jefe Técnico) -->
+        <!-- Grupo: Gerencia / Administración (hereda de Jefe Técnico + Recepcionista) -->
         <record id="techstore_group_manager" model="res.groups">
-            <field name="name">TechStore Gerencia</field>
-            <field name="category_id" eval="False"/>
-            <field name="implied_ids" eval="[]"/>
+            <field name="name">Gerencia / Administración</field>
+            <field name="category_id" ref="module_category_techstore"/>
+            <field name="comment">Control total operativo. Acceso CRUD completo a todas las entidades, puede reasignar tickets, modificar prioridades críticas y acceder a dashboards de métricas.</field>
+            <field name="implied_ids" eval="[(4, ref('techstore_group_technical_boss')), (4, ref('techstore_group_receptionist'))]"/>
         </record>
 
-        <!-- Grupo: Administrador (hereda de Gerencia) -->
+        <!-- Grupo: Administrador del Sistema (hereda de Gerencia) -->
         <record id="techstore_group_admin" model="res.groups">
-            <field name="name">TechStore Administrador</field>
-            <field name="category_id" eval="False"/>
-            <field name="implied_ids" eval="[]"/>
+            <field name="name">Administrador del Sistema</field>
+            <field name="category_id" ref="module_category_techstore"/>
+            <field name="comment">Acceso total al sistema. Puede configurar estados, prioridades, eliminar registros y gestionar la configuración del módulo.</field>
+            <field name="implied_ids" eval="[(4, ref('techstore_group_manager'))]"/>
         </record>
 
-        <!-- ===== RECORD RULES ===== -->
+        <!-- ═══════════════════════════════════════════
+             RECORD RULES - MANTENIMIENTOS
+        ═══════════════════════════════════════════ -->
 
-        <!-- Rule Recepcionista: Solo ve mantenimientos que él creó -->
+        <!-- Recepcionista: Ve mantenimientos que él creó -->
         <record id="rule_mantenimiento_receptionist_own" model="ir.rule">
-            <field name="name">Mantenimiento - Recepcionista ve sus propios</field>
+            <field name="name">Mantenimiento - Recepcionista ve los que creó</field>
             <field name="model_id" ref="techstore_maintenance.model_techstore_mantenimiento"/>
             <field name="groups" eval="[(4, ref('techstore_group_receptionist'))]"/>
             <field name="domain_force">[('create_uid', '=', user.id)]</field>
@@ -50,11 +75,23 @@
             <field name="perm_unlink">0</field>
         </record>
 
-        <!-- Rule Técnico: Ve todos los mantenimientos -->
-        <record id="rule_mantenimiento_technician_all" model="ir.rule">
-            <field name="name">Mantenimiento - Técnico ve todos</field>
+        <!-- Técnico: Solo ve mantenimientos asignados a él -->
+        <record id="rule_mantenimiento_technician_assigned" model="ir.rule">
+            <field name="name">Mantenimiento - Técnico ve solo los asignados</field>
             <field name="model_id" ref="techstore_maintenance.model_techstore_mantenimiento"/>
             <field name="groups" eval="[(4, ref('techstore_group_technician'))]"/>
+            <field name="domain_force">[('ced_tecnico.usuario_id', '=', user.id)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">0</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Jefe Técnico: Ve y modifica todos los mantenimientos -->
+        <record id="rule_mantenimiento_technical_boss_all" model="ir.rule">
+            <field name="name">Mantenimiento - Jefe Técnico acceso total</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_mantenimiento"/>
+            <field name="groups" eval="[(4, ref('techstore_group_technical_boss'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read">1</field>
             <field name="perm_write">1</field>
@@ -62,11 +99,11 @@
             <field name="perm_unlink">0</field>
         </record>
 
-        <!-- Rule Jefe Técnico: Ve y puede modificar todos -->
-        <record id="rule_mantenimiento_technical_boss_all" model="ir.rule">
-            <field name="name">Mantenimiento - Jefe Técnico ve todos</field>
+        <!-- Gerencia: Acceso total a mantenimientos incluido eliminar -->
+        <record id="rule_mantenimiento_manager_all" model="ir.rule">
+            <field name="name">Mantenimiento - Gerencia acceso completo</field>
             <field name="model_id" ref="techstore_maintenance.model_techstore_mantenimiento"/>
-            <field name="groups" eval="[(4, ref('techstore_group_technical_boss'))]"/>
+            <field name="groups" eval="[(4, ref('techstore_group_manager'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read">1</field>
             <field name="perm_write">1</field>
@@ -74,9 +111,13 @@
             <field name="perm_unlink">1</field>
         </record>
 
-        <!-- Rule Recepcionista: Acceso a Clientes (leer/crear/modificar) sin restricción por creador -->
+        <!-- ═══════════════════════════════════════════
+             RECORD RULES - CLIENTES
+        ═══════════════════════════════════════════ -->
+
+        <!-- Recepcionista: Acceso general a Clientes (sin eliminar) -->
         <record id="rule_cliente_receptionist" model="ir.rule">
-            <field name="name">Cliente - Recepcionista acceso general</field>
+            <field name="name">Cliente - Recepcionista crear/editar/leer</field>
             <field name="model_id" ref="techstore_maintenance.model_techstore_cliente"/>
             <field name="groups" eval="[(4, ref('techstore_group_receptionist'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
@@ -86,9 +127,37 @@
             <field name="perm_unlink">0</field>
         </record>
 
-        <!-- Rule Recepcionista: Acceso a Equipos (leer/crear/modificar) sin restricción por creador -->
+        <!-- Técnico: Solo lectura de Clientes -->
+        <record id="rule_cliente_technician" model="ir.rule">
+            <field name="name">Cliente - Técnico solo lectura</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_cliente"/>
+            <field name="groups" eval="[(4, ref('techstore_group_technician'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">0</field>
+            <field name="perm_create">0</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Gerencia: Acceso total a Clientes -->
+        <record id="rule_cliente_manager" model="ir.rule">
+            <field name="name">Cliente - Gerencia acceso completo</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_cliente"/>
+            <field name="groups" eval="[(4, ref('techstore_group_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════
+             RECORD RULES - EQUIPOS
+        ═══════════════════════════════════════════ -->
+
+        <!-- Recepcionista: Acceso general a Equipos (sin eliminar) -->
         <record id="rule_equipo_receptionist" model="ir.rule">
-            <field name="name">Equipo - Recepcionista acceso general</field>
+            <field name="name">Equipo - Recepcionista crear/editar/leer</field>
             <field name="model_id" ref="techstore_maintenance.model_techstore_equipo"/>
             <field name="groups" eval="[(4, ref('techstore_group_receptionist'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
@@ -96,6 +165,138 @@
             <field name="perm_write">1</field>
             <field name="perm_create">1</field>
             <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Técnico: Solo lectura de Equipos -->
+        <record id="rule_equipo_technician" model="ir.rule">
+            <field name="name">Equipo - Técnico solo lectura</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_equipo"/>
+            <field name="groups" eval="[(4, ref('techstore_group_technician'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">0</field>
+            <field name="perm_create">0</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Gerencia: Acceso total a Equipos -->
+        <record id="rule_equipo_manager" model="ir.rule">
+            <field name="name">Equipo - Gerencia acceso completo</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_equipo"/>
+            <field name="groups" eval="[(4, ref('techstore_group_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════
+             RECORD RULES - TÉCNICOS
+        ═══════════════════════════════════════════ -->
+
+        <!-- Recepcionista: Solo lectura de Técnicos -->
+        <record id="rule_tecnico_receptionist" model="ir.rule">
+            <field name="name">Técnico - Recepcionista solo lectura</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_tecnico"/>
+            <field name="groups" eval="[(4, ref('techstore_group_receptionist'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">0</field>
+            <field name="perm_create">0</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Técnico: Solo ve su propio perfil -->
+        <record id="rule_tecnico_technician_own" model="ir.rule">
+            <field name="name">Técnico - Solo ve su propio perfil</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_tecnico"/>
+            <field name="groups" eval="[(4, ref('techstore_group_technician'))]"/>
+            <field name="domain_force">[('usuario_id', '=', user.id)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">0</field>
+            <field name="perm_create">0</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Jefe Técnico: Ve todos los técnicos (lectura) -->
+        <record id="rule_tecnico_boss_all" model="ir.rule">
+            <field name="name">Técnico - Jefe Técnico ve todos</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_tecnico"/>
+            <field name="groups" eval="[(4, ref('techstore_group_technical_boss'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">0</field>
+            <field name="perm_create">0</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Gerencia: Acceso total a Técnicos -->
+        <record id="rule_tecnico_manager" model="ir.rule">
+            <field name="name">Técnico - Gerencia acceso completo</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_tecnico"/>
+            <field name="groups" eval="[(4, ref('techstore_group_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════
+             RECORD RULES - ESTADOS (solo lectura para todos excepto Admin)
+        ═══════════════════════════════════════════ -->
+
+        <!-- Todos los usuarios internos pueden leer Estados -->
+        <record id="rule_estado_read_all" model="ir.rule">
+            <field name="name">Estado - Lectura para todos los usuarios</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_estado"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">0</field>
+            <field name="perm_create">0</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Admin: CRUD total de Estados -->
+        <record id="rule_estado_admin" model="ir.rule">
+            <field name="name">Estado - Administrador acceso completo</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_estado"/>
+            <field name="groups" eval="[(4, ref('techstore_group_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════
+             RECORD RULES - PRIORIDADES (solo lectura para todos excepto Admin)
+        ═══════════════════════════════════════════ -->
+
+        <!-- Todos los usuarios internos pueden leer Prioridades -->
+        <record id="rule_prioridad_read_all" model="ir.rule">
+            <field name="name">Prioridad - Lectura para todos los usuarios</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_prioridad"/>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">0</field>
+            <field name="perm_create">0</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Admin: CRUD total de Prioridades -->
+        <record id="rule_prioridad_admin" model="ir.rule">
+            <field name="name">Prioridad - Administrador acceso completo</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_prioridad"/>
+            <field name="groups" eval="[(4, ref('techstore_group_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">1</field>
+            <field name="perm_create">1</field>
+            <field name="perm_unlink">1</field>
         </record>
     </data>
 </odoo>

@@ -279,7 +279,12 @@ class TechstoreTecnico(models.Model):
                     })
 
                 user_vals['partner_id'] = partner.id
-                user_vals['groups_id'] = [(6, 0, [self.env.ref('base.group_user').id])]
+                # Asignar grupo base + grupo Técnico de TechStore
+                technician_group = self.env.ref('techstore_maintenance.techstore_group_technician', raise_if_not_found=False)
+                group_ids = [self.env.ref('base.group_user').id]
+                if technician_group:
+                    group_ids.append(technician_group.id)
+                user_vals['groups_id'] = [(6, 0, group_ids)]
                 if not record.contrasena:
                     raise ValidationError(_('Debes definir una contraseña inicial para crear la cuenta del técnico.'))
 

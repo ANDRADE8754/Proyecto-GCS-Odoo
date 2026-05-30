@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Menú de Configuración -->
-        <menuitem id="menu_techstore_settings" name="Configuración" parent="menu_techstore_maintenance"
-                  sequence="100"/>
 
         <!-- Registros de Estados -->
         <record id="techstore_estado_nuevo" model="techstore.estado">

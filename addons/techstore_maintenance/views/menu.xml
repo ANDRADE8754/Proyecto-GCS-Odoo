@@ -16,32 +16,37 @@
               name="Mantenimientos"
               parent="menu_techstore_maintenance"
               action="action_techstore_mantenimiento"
+              groups="techstore_maintenance.techstore_group_receptionist,techstore_maintenance.techstore_group_technician,techstore_maintenance.techstore_group_technical_boss,techstore_maintenance.techstore_group_manager,techstore_maintenance.techstore_group_admin"
               sequence="10"/>
 
     <menuitem id="menu_techstore_cliente"
               name="Clientes"
               parent="menu_techstore_maintenance"
               action="action_techstore_cliente"
+              groups="techstore_maintenance.techstore_group_receptionist,techstore_maintenance.techstore_group_manager,techstore_maintenance.techstore_group_admin"
               sequence="20"/>
 
     <menuitem id="menu_techstore_equipo"
               name="Equipos"
               parent="menu_techstore_maintenance"
               action="action_techstore_equipo"
+              groups="techstore_maintenance.techstore_group_receptionist,techstore_maintenance.techstore_group_manager,techstore_maintenance.techstore_group_admin"
               sequence="30"/>
 
     <menuitem id="menu_techstore_tecnico"
               name="Técnicos"
               parent="menu_techstore_maintenance"
               action="action_techstore_tecnico"
+              groups="techstore_maintenance.techstore_group_technical_boss,techstore_maintenance.techstore_group_manager,techstore_maintenance.techstore_group_admin"
               sequence="40"/>
 
     <!-- ═══════════════════════════════════════════
-         REPORTES
+         REPORTES (Jefe Técnico, Gerencia, Admin)
     ═══════════════════════════════════════════ -->
     <menuitem id="menu_techstore_reportes"
               name="Reportes"
               parent="menu_techstore_maintenance"
+              groups="techstore_maintenance.techstore_group_technical_boss,techstore_maintenance.techstore_group_manager,techstore_maintenance.techstore_group_admin"
               sequence="45"/>
 
     <menuitem id="menu_techstore_report_analisis"
@@ -56,14 +61,14 @@
               action="action_techstore_reporte_wizard"
               sequence="20"/>
 
+    <!-- ═══════════════════════════════════════════
+         CONFIGURACIÓN (solo Administrador)
+    ═══════════════════════════════════════════ -->
     <menuitem id="menu_techstore_settings"
               name="Configuración"
               parent="menu_techstore_maintenance"
+              groups="techstore_maintenance.techstore_group_admin"
               sequence="50"/>
-
-    <!-- ═══════════════════════════════════════════
-         CONFIGURACIÓN (Estados y Prioridades)
-    ═══════════════════════════════════════════ -->
 
     <menuitem id="menu_techstore_estado"
               name="Estados"

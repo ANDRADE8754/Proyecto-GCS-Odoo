@@ -173,13 +173,25 @@ class TechstoreMantenimiento(models.Model):
     es_tecnico_jefe = fields.Boolean(
         string='Usuario es Técnico Jefe',
         compute='_compute_es_tecnico_jefe',
-        help='Indica si el usuario actual es técnico jefe'
+        help='Indica si el usuario actual es técnico jefe o superior'
     )
     
     es_recepcionista = fields.Boolean(
         string='Usuario es Recepcionista',
         compute='_compute_es_recepcionista',
         help='Indica si el usuario actual es recepcionista'
+    )
+
+    es_administrador = fields.Boolean(
+        string='Usuario es Administrador',
+        compute='_compute_es_administrador',
+        help='Indica si el usuario actual es administrador del sistema'
+    )
+
+    es_gerencia = fields.Boolean(
+        string='Usuario es Gerencia',
+        compute='_compute_es_gerencia',
+        help='Indica si el usuario actual es gerencia o administrador'
     )
     
     puede_modificar_datos_iniciales = fields.Boolean(
@@ -341,22 +353,40 @@ class TechstoreMantenimiento(models.Model):
 
     @api.depends()
     def _compute_es_tecnico_jefe(self):
-        """Sin roles activos, el acceso no depende de grupos."""
+        """Verifica si el usuario actual pertenece al grupo Jefe Técnico o superior"""
+        is_boss = self.env.user.has_group('techstore_maintenance.techstore_group_technical_boss')
         for record in self:
-            record.es_tecnico_jefe = True
+            record.es_tecnico_jefe = is_boss
 
     @api.depends()
     def _compute_es_recepcionista(self):
-        """Sin roles activos, no se marca al usuario como recepcionista puro."""
+        """Verifica si el usuario actual pertenece al grupo Recepcionista"""
+        is_receptionist = self.env.user.has_group('techstore_maintenance.techstore_group_receptionist')
         for record in self:
-            record.es_recepcionista = False
+            record.es_recepcionista = is_receptionist
+
+    @api.depends()
+    def _compute_es_administrador(self):
+        """Verifica si el usuario actual pertenece al grupo Administrador del Sistema"""
+        is_admin = self.env.user.has_group('techstore_maintenance.techstore_group_admin')
+        for record in self:
+            record.es_administrador = is_admin
+
+    @api.depends()
+    def _compute_es_gerencia(self):
+        """Verifica si el usuario actual pertenece al grupo Gerencia o superior"""
+        is_manager = self.env.user.has_group('techstore_maintenance.techstore_group_manager')
+        for record in self:
+            record.es_gerencia = is_manager
 
     @api.depends('id_estado')
     def _compute_puede_modificar_datos_iniciales(self):
-        """Permite modificar datos iniciales solo en estado nuevo"""
+        """Permite modificar datos iniciales solo en estado nuevo y si el usuario tiene permisos"""
+        is_receptionist = self.env.user.has_group('techstore_maintenance.techstore_group_receptionist')
+        is_manager = self.env.user.has_group('techstore_maintenance.techstore_group_manager')
         for record in self:
             estado_actual = record.id_estado.nombre_estado if record.id_estado else 'nuevo'
-            record.puede_modificar_datos_iniciales = estado_actual == 'nuevo'
+            record.puede_modificar_datos_iniciales = estado_actual == 'nuevo' and (is_receptionist or is_manager)
 
     @api.depends('id_estado')
     def _compute_es_estado_nuevo(self):

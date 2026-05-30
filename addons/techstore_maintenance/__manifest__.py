@@ -14,6 +14,7 @@
         'product',
     ],
     'data': [
+        'security/security_groups.xml',
         'security/ir.model.access.csv',
         'data/secuencia_data.xml',
         # Reportes
