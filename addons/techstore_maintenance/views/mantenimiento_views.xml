@@ -31,6 +31,7 @@
             <field name="arch" type="xml">
                 <form string="Mantenimiento">
                     <header>
+                        <field name="puede_pasar_pendiente_asignacion" invisible="1"/>
                         <field name="puede_pasar_diagnostico" invisible="1"/>
                         <field name="puede_pasar_reparacion" invisible="1"/>
                         <field name="puede_pasar_esperando_repuestos" invisible="1"/>
@@ -39,6 +40,9 @@
                         <field name="puede_pasar_entregado" invisible="1"/>
                         <button string="Guardar" special="save" class="btn-primary oe_highlight"/>
                         <button string="Cancelar" special="cancel" class="btn-secondary"/>
+                        <!-- Recepcionista/Jefe Técnico/Gerencia: Pendiente de Asignación -->
+                        <button name="action_set_pendiente_asignacion" type="object" string="→ Pendiente de Asignación" class="btn-secondary"
+                            groups="techstore_maintenance.techstore_group_receptionist,techstore_maintenance.techstore_group_technical_boss,techstore_maintenance.techstore_group_manager"/>
                         <!-- Recepcionista/Jefe Técnico/Gerencia: Pasar a Diagnóstico -->
                         <button name="action_set_diagnostico" type="object" string="→ Diagnóstico" class="btn-primary"
                                 groups="techstore_maintenance.techstore_group_receptionist,techstore_maintenance.techstore_group_technical_boss,techstore_maintenance.techstore_group_manager"/>
@@ -81,6 +85,7 @@
 
                         <group>
                             <field name="id_estado" readonly="1"/>
+                            <field name="puede_pasar_pendiente_asignacion" invisible="1"/>
                             <field name="puede_pasar_diagnostico" invisible="1"/>
                             <field name="puede_pasar_reparacion" invisible="1"/>
                             <field name="puede_pasar_esperando_repuestos" invisible="1"/>
@@ -98,7 +103,7 @@
                                 <field name="id_prioridad" required="1" options="{'no_create': True}" readonly="0"/>
                             </group>
                             <group string="Estado">
-                                <field name="id_estado" readonly="1" widget="statusbar" statusbar_visible="nuevo,diagnostico,reparacion,esperando_repuestos,control_calidad,listo_entrega,entregado" options="{'no_create': True, 'no_create_edit': True}" nolabel="1" colspan="2"/>
+                                <field name="id_estado" readonly="1" widget="statusbar" statusbar_visible="ingresado,pendiente_asignacion,diagnostico,reparacion,esperando_repuestos,control_calidad,listo_entrega,entregado" options="{'no_create': True, 'no_create_edit': True}" nolabel="1" colspan="2"/>
                             </group>
                             <group string="Fechas y Control">
                                 <field name="fecha_ingreso" readonly="1"/>
@@ -133,6 +138,16 @@
                                     <field name="fecha_estimada_entrega" readonly="1"/>
                                     <field name="esta_retrasado" readonly="1"/>
                                 </group>
+                            </page>
+                            <page string="Historial de Estados">
+                                <field name="state_tracking" nolabel="1" readonly="1">
+                                    <tree create="false" edit="false" delete="false">
+                                        <field name="fecha_cambio"/>
+                                        <field name="id_estado"/>
+                                        <field name="usuario_id"/>
+                                        <field name="observacion"/>
+                                    </tree>
+                                </field>
                             </page>
                         </notebook>
                     </sheet>
@@ -192,7 +207,8 @@
                     <field name="id_estado"/>
                     <field name="id_prioridad"/>
                     <separator/>
-                    <filter name="filter_nuevo" string="Nuevos" domain="[('nombre_estado', '=', 'nuevo')]"/>
+                    <filter name="filter_ingresado" string="Ingresados" domain="[('nombre_estado', '=', 'ingresado')]"/>
+                    <filter name="filter_pendiente_asignacion" string="Pendiente de Asignación" domain="[('nombre_estado', '=', 'pendiente_asignacion')]"/>
                     <filter name="filter_diagnostico" string="En Diagnóstico" domain="[('nombre_estado', '=', 'diagnostico')]"/>
                     <filter name="filter_reparacion" string="En Reparación" domain="[('nombre_estado', '=', 'reparacion')]"/>
                     <filter name="filter_esperando" string="Esperando Repuestos" domain="[('nombre_estado', '=', 'esperando_repuestos')]"/>
@@ -249,12 +265,12 @@
         </record>
 
         <record id="action_techstore_mantenimiento_receptionist" model="ir.actions.act_window">
-            <field name="name">Mantenimientos Nuevos</field>
+            <field name="name">Mantenimientos Ingresados</field>
             <field name="res_model">techstore.mantenimiento</field>
             <field name="view_mode">kanban,tree,form</field>
             <field name="search_view_id" ref="view_techstore_mantenimiento_search"/>
-            <field name="domain">[('nombre_estado', '=', 'nuevo')]</field>
-            <field name="context">{'search_default_filter_nuevo': 1}</field>
+            <field name="domain">[('nombre_estado', '=', 'ingresado')]</field>
+            <field name="context">{'search_default_filter_ingresado': 1}</field>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">Crea un nuevo mantenimiento desde recepción.</p>
             </field>

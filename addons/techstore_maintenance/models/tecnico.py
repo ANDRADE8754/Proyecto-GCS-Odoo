@@ -153,7 +153,7 @@ class TechstoreTecnico(models.Model):
 
     @api.constrains('disponibilidad')
     def _check_disponibilidad_asignaciones(self):
-        """Si se marca como no disponible, valida que no hay mantenimientos nuevos sin asignar"""
+        """Si se marca como no disponible, valida que no hay mantenimientos ingresados sin asignar"""
         for record in self:
             if not record.disponibilidad:
                 # Permite la transición a no disponible
@@ -162,7 +162,7 @@ class TechstoreTecnico(models.Model):
     @api.depends('mantenimiento_ids', 'mantenimiento_ids.id_estado')
     def _compute_carga_trabajo(self):
         """Calcula la cantidad de mantenimientos en estados de progreso"""
-        estados_progreso = ['nuevo', 'diagnostico', 'reparacion', 'esperando_repuestos']
+        estados_progreso = ['ingresado', 'pendiente_asignacion', 'diagnostico', 'reparacion', 'esperando_repuestos']
         
         for record in self:
             carga = len(record.mantenimiento_ids.filtered(
@@ -232,10 +232,10 @@ class TechstoreTecnico(models.Model):
             vals['ced_tecnico'] = vals['ced_tecnico'].strip()
 
         if 'disponibilidad' in vals and not vals['disponibilidad']:
-            # Si se marca como no disponible, verificar que no hay mantenimientos en estado 'nuevo'
+            # Si se marca como no disponible, verificar que no hay mantenimientos en estado 'ingresado'
             for record in self:
                 nuevos = record.mantenimiento_ids.filtered(
-                    lambda m: m.id_estado and m.id_estado.nombre_estado == 'nuevo'  # ← CORREGIDO
+                    lambda m: m.id_estado and m.id_estado.nombre_estado == 'ingresado'  # ← CORREGIDO
                 )
                 if nuevos:
                     raise ValidationError(

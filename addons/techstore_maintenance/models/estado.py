@@ -18,7 +18,8 @@ class TechstoreEstado(models.Model):
     )
     nombre_estado = fields.Selection(
         [
-            ('nuevo', 'Nuevo'),
+            ('ingresado', 'Ingresado'),
+            ('pendiente_asignacion', 'Pendiente de Asignación'),
             ('diagnostico', 'Diagnóstico'),
             ('reparacion', 'Reparación'),
             ('esperando_repuestos', 'Esperando Repuestos'),
@@ -86,6 +87,11 @@ class TechstoreEstado(models.Model):
             INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
             SELECT 'techstore_estado_nuevo', 'techstore_maintenance', 'techstore.estado', id, false
             FROM techstore_estado WHERE id_estado = 'EST-001' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_estado_nuevo');
+            """,
+            """
+            INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
+            SELECT 'techstore_estado_pendiente_asignacion', 'techstore_maintenance', 'techstore.estado', id, false
+            FROM techstore_estado WHERE id_estado = 'EST-008' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_estado_pendiente_asignacion');
             """,
             """
             INSERT INTO ir_model_data (name, module, model, res_id, noupdate)

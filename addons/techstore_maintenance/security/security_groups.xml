@@ -70,9 +70,21 @@
             <field name="model_id" ref="techstore_maintenance.model_techstore_mantenimiento"/>
             <field name="groups" eval="[(4, ref('techstore_group_receptionist'))]"/>
             <field name="domain_force">[('create_uid', '=', user.id)]</field>
-            <field name="perm_read">1</field>
+            <field name="perm_read">0</field>
             <field name="perm_write">1</field>
             <field name="perm_create">1</field>
+            <field name="perm_unlink">0</field>
+        </record>
+
+        <!-- Recepcionista: Lectura de todos los mantenimientos para consulta de historial -->
+        <record id="rule_mantenimiento_receptionist_read_all" model="ir.rule">
+            <field name="name">Mantenimiento - Recepcionista lectura total</field>
+            <field name="model_id" ref="techstore_maintenance.model_techstore_mantenimiento"/>
+            <field name="groups" eval="[(4, ref('techstore_group_receptionist'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read">1</field>
+            <field name="perm_write">0</field>
+            <field name="perm_create">0</field>
             <field name="perm_unlink">0</field>
         </record>
 

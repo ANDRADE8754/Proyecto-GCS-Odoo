@@ -60,7 +60,7 @@ class TechstoreMantenimiento(models.Model):
         'techstore.estado',
         string='Estado',
         required=True,
-        default=lambda self: self.env['techstore.estado'].search([('nombre_estado', '=', 'nuevo')], limit=1),
+        default=lambda self: self.env['techstore.estado'].search([('nombre_estado', '=', 'ingresado')], limit=1),
         tracking=True,
         help='Estado actual del mantenimiento'
         ,group_expand='_group_expand_id_estado'
@@ -149,6 +149,11 @@ class TechstoreMantenimiento(models.Model):
         compute='_compute_pasos_estado',
         help='Control visual para mostrar el siguiente paso permitido'
     )
+    puede_pasar_pendiente_asignacion = fields.Boolean(
+        string='Puede pasar a Pendiente de Asignacion',
+        compute='_compute_pasos_estado',
+        help='Control visual para mostrar el siguiente paso permitido'
+    )
     puede_pasar_reparacion = fields.Boolean(
         string='Puede pasar a Reparación',
         compute='_compute_pasos_estado',
@@ -222,18 +227,27 @@ class TechstoreMantenimiento(models.Model):
     )
 
     es_estado_nuevo = fields.Boolean(
-        string='Estado es Nuevo',
+        string='Estado es Ingresado',
         compute='_compute_es_estado_nuevo',
-        help='Indica si el mantenimiento está en estado nuevo'
+        help='Indica si el mantenimiento está en estado ingresado'
     )
 
-    # Flujo de estados con bifurcación en 'reparacion':
-    # nuevo → diagnostico → reparacion → [esperando_repuestos ↔ reparacion] → control_calidad → listo_entrega → entregado
+    state_tracking = fields.One2many(
+        'techstore.mantenimiento.historial',
+        'mantenimiento_id',
+        string='Historial de Estados',
+        readonly=True,
+        help='Registro de cambios de estado del mantenimiento'
+    )
+
+    # Flujo de estados con bifurcacion en 'reparacion':
+    # ingresado → pendiente_asignacion → diagnostico → reparacion → [esperando_repuestos ↔ reparacion] → control_calidad → listo_entrega → entregado
     _SECUENCIA_ESTADOS = {
-        'nuevo': ['diagnostico'],
+        'ingresado': ['pendiente_asignacion'],
+        'pendiente_asignacion': ['diagnostico'],
         'diagnostico': ['reparacion'],
         'reparacion': ['esperando_repuestos', 'control_calidad'],
-        'esperando_repuestos': ['reparacion'],  # Vuelve a reparación cuando llegan repuestos
+        'esperando_repuestos': ['reparacion'],  # Vuelve a reparacion cuando llegan repuestos
         'control_calidad': ['listo_entrega'],
         'listo_entrega': ['entregado'],
         'entregado': [],
@@ -315,12 +329,18 @@ class TechstoreMantenimiento(models.Model):
             else:
                 record.fecha_estimada_entrega = False
 
-    @api.depends('fecha_ingreso', 'fecha_entrega')
+    @api.depends('fecha_ingreso', 'fecha_entrega', 'tiempo_pausado_horas', 'fecha_pausa_repuestos')
     def _compute_tiempo_atencion_horas(self):
         for record in self:
             if record.fecha_ingreso and record.fecha_entrega:
                 delta = record.fecha_entrega - record.fecha_ingreso
-                record.tiempo_atencion_horas = round(delta.total_seconds() / 3600, 2)
+                total_horas = delta.total_seconds() / 3600
+                pausa_actual = 0.0
+                if record.fecha_pausa_repuestos:
+                    pausa_delta = datetime.now() - record.fecha_pausa_repuestos.replace(tzinfo=None)
+                    pausa_actual = max(pausa_delta.total_seconds() / 3600, 0.0)
+                horas_efectivas = max(total_horas - (record.tiempo_pausado_horas + pausa_actual), 0.0)
+                record.tiempo_atencion_horas = round(horas_efectivas, 2)
             else:
                 record.tiempo_atencion_horas = 0.0
 
@@ -368,8 +388,9 @@ class TechstoreMantenimiento(models.Model):
     @api.depends('id_estado')
     def _compute_pasos_estado(self):
         for record in self:
-            estado_actual = record.id_estado.nombre_estado if record.id_estado else 'nuevo'
-            record.puede_pasar_diagnostico = estado_actual == 'nuevo'
+            estado_actual = record.id_estado.nombre_estado if record.id_estado else 'ingresado'
+            record.puede_pasar_pendiente_asignacion = estado_actual == 'ingresado'
+            record.puede_pasar_diagnostico = estado_actual == 'pendiente_asignacion'
             record.puede_pasar_reparacion = estado_actual in ('diagnostico', 'esperando_repuestos')
             record.puede_pasar_esperando_repuestos = estado_actual == 'reparacion'
             record.puede_pasar_control_calidad = estado_actual == 'reparacion'
@@ -407,19 +428,19 @@ class TechstoreMantenimiento(models.Model):
 
     @api.depends('id_estado')
     def _compute_puede_modificar_datos_iniciales(self):
-        """Permite modificar datos iniciales solo en estado nuevo y si el usuario tiene permisos"""
+        """Permite modificar datos iniciales solo en estado ingresado y si el usuario tiene permisos"""
         is_receptionist = self.env.user.has_group('techstore_maintenance.techstore_group_receptionist')
         is_manager = self.env.user.has_group('techstore_maintenance.techstore_group_manager')
         for record in self:
-            estado_actual = record.id_estado.nombre_estado if record.id_estado else 'nuevo'
-            record.puede_modificar_datos_iniciales = estado_actual == 'nuevo' and (is_receptionist or is_manager)
+            estado_actual = record.id_estado.nombre_estado if record.id_estado else 'ingresado'
+            record.puede_modificar_datos_iniciales = estado_actual == 'ingresado' and (is_receptionist or is_manager)
 
     @api.depends('id_estado')
     def _compute_es_estado_nuevo(self):
-        """Verifica si el estado actual es nuevo"""
+        """Verifica si el estado actual es ingresado"""
         for record in self:
-            estado_actual = record.id_estado.nombre_estado if record.id_estado else 'nuevo'
-            record.es_estado_nuevo = estado_actual == 'nuevo'
+            estado_actual = record.id_estado.nombre_estado if record.id_estado else 'ingresado'
+            record.es_estado_nuevo = estado_actual == 'ingresado'
 
     @api.constrains('ced_cliente', 'id_equipo')
     def _check_equipo_pertenece_cliente(self):
@@ -516,26 +537,31 @@ class TechstoreMantenimiento(models.Model):
             if not vals.get('id_equipo'):
                 raise ValidationError(_('Debes seleccionar un equipo válido del cliente antes de guardar el mantenimiento.'))
             if not vals.get('id_estado'):
-                estado_nuevo = self.env['techstore.estado'].search([('nombre_estado', '=', 'nuevo')], limit=1)
-                if estado_nuevo:
-                    vals['id_estado'] = estado_nuevo.id
+                estado_ingresado = self.env['techstore.estado'].search([('nombre_estado', '=', 'ingresado')], limit=1)
+                if estado_ingresado:
+                    vals['id_estado'] = estado_ingresado.id
             if not vals.get('id_prioridad'):
                 prioridad_media = self.env['techstore.prioridad'].search([('nombre', '=', 'media')], limit=1)
                 if prioridad_media:
                     vals['id_prioridad'] = prioridad_media.id
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        records._crear_historial_estado_inicial()
+        return records
 
     def write(self, vals):
+        estados_previos = {}
+        if 'id_estado' in vals:
+            estados_previos = {record.id: record.id_estado.id for record in self}
         # Validar que no se modifiquen datos iniciales después de creado
         for record in self:
-            estado_actual = record.id_estado.nombre_estado if record.id_estado else 'nuevo'
-            if estado_actual != 'nuevo':
+            estado_actual = record.id_estado.nombre_estado if record.id_estado else 'ingresado'
+            if estado_actual != 'ingresado':
                 # Campos que no se pueden modificar después de crear el mantenimiento
                 campos_iniciales = ['ced_cliente', 'id_equipo', 'id_prioridad', 'falla_reportada']
                 campos_a_modificar = [c for c in campos_iniciales if c in vals]
                 if campos_a_modificar:
                     raise ValidationError(
-                        _('No puedes modificar los datos iniciales (%s) una vez que el mantenimiento ha salido del estado "Nuevo".') % 
+                        _('No puedes modificar los datos iniciales (%s) una vez que el mantenimiento ha salido del estado "Ingresado".') % 
                         ', '.join(campos_a_modificar)
                     )
         
@@ -548,7 +574,7 @@ class TechstoreMantenimiento(models.Model):
             nuevo_estado = self.env['techstore.estado'].browse(vals['id_estado'])
             if nuevo_estado and nuevo_estado.exists():
                 for record in self:
-                    estado_actual = record.id_estado.nombre_estado if record.id_estado else 'nuevo'
+                    estado_actual = record.id_estado.nombre_estado if record.id_estado else 'ingresado'
                     estados_permitidos = self._SECUENCIA_ESTADOS.get(estado_actual, [])
                     if nuevo_estado.nombre_estado not in estados_permitidos and nuevo_estado.nombre_estado != estado_actual:
                         raise ValidationError(
@@ -569,11 +595,41 @@ class TechstoreMantenimiento(models.Model):
                     if not record.fecha_entrega:
                         record.fecha_entrega = fields.Datetime.now()
 
+            for record in self:
+                if estados_previos.get(record.id) != record.id_estado.id:
+                    record._crear_historial_estado(
+                        observacion=record.justificacion_cambio_estado or ''
+                    )
+
         return result
+
+    def _crear_historial_estado(self, fecha_cambio=None, observacion=None):
+        historial_obj = self.env['techstore.mantenimiento.historial'].sudo()
+        for record in self:
+            if not record.id_estado:
+                continue
+            historial_obj.create({
+                'mantenimiento_id': record.id,
+                'id_estado': record.id_estado.id,
+                'fecha_cambio': fecha_cambio or fields.Datetime.now(),
+                'usuario_id': self.env.user.id,
+                'observacion': observacion or '',
+            })
+
+    def _crear_historial_estado_inicial(self):
+        for record in self:
+            record._crear_historial_estado(
+                fecha_cambio=record.fecha_ingreso or fields.Datetime.now(),
+                observacion='Creacion del mantenimiento'
+            )
 
     def action_set_diagnostico(self):
         self.ensure_one()
         return self._open_state_wizard('diagnostico')
+
+    def action_set_pendiente_asignacion(self):
+        self.ensure_one()
+        return self._open_state_wizard('pendiente_asignacion')
 
     def action_set_reparacion(self):
         self.ensure_one()
@@ -597,7 +653,7 @@ class TechstoreMantenimiento(models.Model):
 
     def action_reset_nuevo(self):
         self.ensure_one()
-        return self._open_state_wizard('nuevo')
+        return self._open_state_wizard('ingresado')
 
     def _open_state_wizard(self, estado_objetivo):
         self.ensure_one()
@@ -619,7 +675,7 @@ class TechstoreMantenimiento(models.Model):
         if not justificacion or not justificacion.strip():
             raise ValidationError(_('La justificación es obligatoria para cambiar el estado.'))
 
-        estado_actual = self.id_estado.nombre_estado if self.id_estado else 'nuevo'
+        estado_actual = self.id_estado.nombre_estado if self.id_estado else 'ingresado'
         estados_permitidos = self._SECUENCIA_ESTADOS.get(estado_actual, [])
         if estado_objetivo not in estados_permitidos:
             raise ValidationError(_('Debes seguir la secuencia de estados. Desde "%s" solo puedes pasar a "%s".') % (
@@ -662,6 +718,92 @@ class TechstoreMantenimiento(models.Model):
         if estado_objetivo == 'diagnostico' and tecnico:
             mensaje += _('<br/><b>Técnico asignado:</b> %s') % tecnico.nombre
         self.message_post(body=mensaje)
+
+    def asignar_tecnico_automatico(self):
+        for record in self:
+            if record.ced_tecnico:
+                continue
+            tecnicos = self.env['techstore.tecnico'].search(
+                [('disponibilidad', '=', True)],
+                order='carga_trabajo asc, id asc'
+            )
+            if not tecnicos:
+                raise ValidationError(_('No hay tecnicos disponibles para asignacion automatica.'))
+
+            tipo_equipo = ''
+            if record.id_equipo:
+                tipo_equipo = record.id_equipo._get_tipo_equipo_display(record.id_equipo.tipo_equipo)
+            tipo_equipo_norm = (tipo_equipo or '').lower()
+
+            tecnicos_match = [
+                t for t in tecnicos
+                if tipo_equipo_norm and tipo_equipo_norm in (t.especialidad or '').lower()
+            ]
+            if not tecnicos_match:
+                tecnicos_match = [
+                    t for t in tecnicos
+                    if 'hardware' in (t.especialidad or '').lower()
+                ]
+
+            candidatos = tecnicos_match or tecnicos
+            tecnico = sorted(candidatos, key=lambda t: t.carga_trabajo)[0]
+            record.write({'ced_tecnico': tecnico.id})
+
+    @api.model
+    def actualizar_disponibilidad_tecnicos(self):
+        tecnicos = self.env['techstore.tecnico'].sudo().search([])
+        for tecnico in tecnicos:
+            tecnico.disponibilidad = tecnico.carga_trabajo <= 5
+
+    def _notificar_retraso(self):
+        template = self.env.ref('techstore_maintenance.email_template_retraso', raise_if_not_found=False)
+        for record in self:
+            if not template:
+                continue
+            template.send_mail(record.id, force_send=True)
+
+    def verificar_recordatorio_cierre(self):
+        template = self.env.ref('techstore_maintenance.email_template_recordatorio_cierre', raise_if_not_found=False)
+        if not template:
+            return
+
+        limite = fields.Datetime.now() - timedelta(hours=48)
+        registros = self.search([('id_estado.nombre_estado', '=', 'listo_entrega')])
+        for record in registros:
+            fecha_inicio = record.fecha_entrega or record.fecha_ingreso
+            if record.state_tracking:
+                ultimo = record.state_tracking.sorted(key=lambda r: r.fecha_cambio)[-1]
+                if ultimo.fecha_cambio:
+                    fecha_inicio = ultimo.fecha_cambio
+            if fecha_inicio and fecha_inicio <= limite:
+                template.send_mail(record.id, force_send=True)
+
+    @api.model
+    def get_dashboard_data(self):
+        hoy = fields.Date.today()
+        inicio_hoy = datetime.combine(hoy, datetime.min.time())
+        fin_hoy = datetime.combine(hoy, datetime.max.time())
+        hace_7_dias = fields.Datetime.now() - timedelta(days=7)
+
+        activos_hoy = self.search_count([
+            ('fecha_ingreso', '>=', inicio_hoy),
+            ('fecha_ingreso', '<=', fin_hoy),
+        ])
+        retrasados_count = self.search_count([('esta_retrasado', '=', True)])
+
+        entregados_semana = self.search([('fecha_entrega', '>=', hace_7_dias)])
+        tiempos = [t for t in entregados_semana.mapped('tiempo_atencion_horas') if t > 0]
+        tiempo_promedio_semana = round(sum(tiempos) / len(tiempos), 2) if tiempos else 0.0
+
+        total_semana = self.search_count([('fecha_ingreso', '>=', hace_7_dias)])
+        tasa_completitud_semana = round((len(entregados_semana) / total_semana) * 100, 1) if total_semana > 0 else 0.0
+
+        return {
+            'activos_hoy': activos_hoy,
+            'retrasados_count': retrasados_count,
+            'tiempo_promedio_semana': tiempo_promedio_semana,
+            'tasa_completitud_semana': tasa_completitud_semana,
+        }
 
     def action_view_cliente(self):
         self.ensure_one()
@@ -732,11 +874,11 @@ class TechstoreMantenimiento(models.Model):
         return {'type': 'ir.actions.act_window_close'}
     
     def action_descartar(self):
-        # Solo permitir descartar (eliminar) si el mantenimiento está en estado 'nuevo'
+        # Solo permitir descartar (eliminar) si el mantenimiento está en estado 'ingresado'
         for record in self:
-            estado_actual = record.id_estado.nombre_estado if record.id_estado else 'nuevo'
-            if estado_actual != 'nuevo':
-                raise ValidationError(_('Solo se puede descartar un mantenimiento en estado "nuevo".'))
+            estado_actual = record.id_estado.nombre_estado if record.id_estado else 'ingresado'
+            if estado_actual != 'ingresado':
+                raise ValidationError(_('Solo se puede descartar un mantenimiento en estado "ingresado".'))
             try:
                 if record.exists() and record.id:
                     record.sudo().unlink()

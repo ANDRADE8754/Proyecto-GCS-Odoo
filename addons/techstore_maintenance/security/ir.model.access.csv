@@ -20,6 +20,7 @@ access_estado_admin,Estado Administrador,model_techstore_estado,techstore_group_
 access_prioridad_user,Prioridad Usuario,model_techstore_prioridad,base.group_user,1,0,0,0
 access_prioridad_admin,Prioridad Administrador,model_techstore_prioridad,techstore_group_admin,1,1,1,1
 access_wizard_estado_user,Wizard Estado Usuario,model_techstore_mantenimiento_estado_wizard,base.group_user,1,1,1,1
+access_mantenimiento_historial_user,Historial Mantenimiento Usuario,model_techstore_mantenimiento_historial,base.group_user,1,0,0,0
 access_wizard_reporte_receptionist,Wizard Reporte Recepcionista,model_techstore_reporte_wizard,techstore_group_receptionist,1,1,1,0
 access_wizard_reporte_boss,Wizard Reporte Jefe Técnico,model_techstore_reporte_wizard,techstore_group_technical_boss,1,1,1,0
 access_wizard_reporte_manager,Wizard Reporte Gerencia,model_techstore_reporte_wizard,techstore_group_manager,1,1,1,1

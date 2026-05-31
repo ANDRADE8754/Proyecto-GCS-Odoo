@@ -4,3 +4,4 @@ from . import tecnico
 from . import estado
 from . import prioridad
 from . import mantenimiento
+from . import mantenimiento_historial

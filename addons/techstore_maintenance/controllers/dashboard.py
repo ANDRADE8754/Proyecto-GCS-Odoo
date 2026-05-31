@@ -15,7 +15,8 @@ class TechstoreDashboardController(http.Controller):
         retrasados = mantenimiento_obj.search_count([('esta_retrasado', '=', True)])
         
         # Estados
-        nuevos = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'nuevo')])
+        ingresados = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'ingresado')])
+        pendiente_asignacion = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'pendiente_asignacion')])
         en_diagnostico = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'diagnostico')])
         en_reparacion = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'reparacion')])
         esperando_repuestos = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'esperando_repuestos')])
@@ -23,7 +24,7 @@ class TechstoreDashboardController(http.Controller):
         listo_entrega = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'listo_entrega')])
         entregados = mantenimiento_obj.search_count([('id_estado.nombre_estado', '=', 'entregado')])
 
-        en_proceso = nuevos + en_diagnostico + en_reparacion + esperando_repuestos + en_control_calidad
+        en_proceso = ingresados + pendiente_asignacion + en_diagnostico + en_reparacion + esperando_repuestos + en_control_calidad
         completados = listo_entrega + entregados
 
         total_tecnicos = tecnico_obj.search_count([])
@@ -51,7 +52,8 @@ class TechstoreDashboardController(http.Controller):
             'total_equipos': total_equipos,
             'promedio_horas': promedio_horas,
             'tasa_cumplimiento': tasa_cumplimiento,
-            'nuevos': nuevos,
+            'ingresados': ingresados,
+            'pendiente_asignacion': pendiente_asignacion,
             'en_diagnostico': en_diagnostico,
             'en_reparacion': en_reparacion,
             'esperando_repuestos': esperando_repuestos,

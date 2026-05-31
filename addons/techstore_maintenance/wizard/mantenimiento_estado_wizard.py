@@ -15,13 +15,14 @@ class TechstoreMantenimientoEstadoWizard(models.TransientModel):
     )
     estado_objetivo = fields.Selection(
         [
+            ('ingresado', 'Ingresado'),
+            ('pendiente_asignacion', 'Pendiente de Asignacion'),
             ('diagnostico', 'Diagnóstico'),
             ('reparacion', 'Reparación'),
             ('esperando_repuestos', 'Esperando Repuestos'),
             ('control_calidad', 'Control de Calidad'),
             ('listo_entrega', 'Listo para Entrega'),
             ('entregado', 'Entregado'),
-            ('nuevo', 'Nuevo'),
         ],
         string='Estado objetivo',
         required=True,

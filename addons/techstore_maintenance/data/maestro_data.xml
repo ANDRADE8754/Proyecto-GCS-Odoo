@@ -7,8 +7,14 @@
         <!-- Registros de Estados -->
         <record id="techstore_estado_nuevo" model="techstore.estado">
             <field name="id_estado">EST-001</field>
-            <field name="nombre_estado">nuevo</field>
+            <field name="nombre_estado">ingresado</field>
             <field name="secuencia">10</field>
+        </record>
+
+        <record id="techstore_estado_pendiente_asignacion" model="techstore.estado">
+            <field name="id_estado">EST-008</field>
+            <field name="nombre_estado">pendiente_asignacion</field>
+            <field name="secuencia">15</field>
         </record>
 
         <record id="techstore_estado_diagnostico" model="techstore.estado">

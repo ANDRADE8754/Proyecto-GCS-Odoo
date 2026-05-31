@@ -62,7 +62,7 @@
                                     <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px;">Equipos en Taller</div>
                                     <h2 class="mb-2 mt-2" style="font-weight: 800; color: #fbbf24;"><t t-out="en_proceso"/></h2>
                                     <div style="font-size: 10px; color: #d97706;">
-                                        <span>Nuevos: <strong t-out="nuevos"/> | Diag: <strong t-out="en_diagnostico"/> | Rep: <strong t-out="en_reparacion"/></span>
+                                        <span>Ingresados: <strong t-out="ingresados"/> | Pendiente: <strong t-out="pendiente_asignacion"/> | Diag: <strong t-out="en_diagnostico"/> | Rep: <strong t-out="en_reparacion"/></span>
                                     </div>
                                 </div>
                             </div>

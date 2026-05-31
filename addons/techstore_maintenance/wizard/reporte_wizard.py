@@ -329,6 +329,14 @@ class TechstoreReporteWizard(models.TransientModel):
         mants_activos = self.env['techstore.mantenimiento'].search([
             ('nombre_estado', 'not in', ['entregado']),
         ])
+
+        now = datetime.now()
+
+        def _fecha_inicio_estado(mantenimiento):
+            if mantenimiento.state_tracking:
+                ultimo = mantenimiento.state_tracking.sorted(key=lambda r: r.fecha_cambio)[-1]
+                return ultimo.fecha_cambio
+            return mantenimiento.fecha_ingreso
         
         estados = self.env['techstore.estado'].search([], order='secuencia asc')
         cuellos = []
@@ -341,7 +349,10 @@ class TechstoreReporteWizard(models.TransientModel):
             # Calcular tiempo promedio de permanencia en este estado
             tiempos_permanencia = []
             for m in mants_estado:
-                delta = datetime.now() - m.fecha_ingreso.replace(tzinfo=None)
+                fecha_inicio = _fecha_inicio_estado(m)
+                if not fecha_inicio:
+                    continue
+                delta = now - fecha_inicio.replace(tzinfo=None)
                 tiempos_permanencia.append(round(delta.total_seconds() / 3600, 2))
             
             promedio_permanencia = round(sum(tiempos_permanencia) / len(tiempos_permanencia), 2) if tiempos_permanencia else 0.0

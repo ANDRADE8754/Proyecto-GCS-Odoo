@@ -59,8 +59,8 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
         
         # Crear prioridad y estado
         cls.prioridad = cls.env['techstore.prioridad'].search([], limit=1)
-        cls.estado_nuevo = cls.env['techstore.estado'].search(
-            [('nombre_estado', '=', 'nuevo')], limit=1
+        cls.estado_ingresado = cls.env['techstore.estado'].search(
+            [('nombre_estado', '=', 'ingresado')], limit=1
         )
         cls.estado_listo_entrega = cls.env['techstore.estado'].search(
             [('nombre_estado', '=', 'listo_entrega')], limit=1
@@ -76,7 +76,7 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
             'ced_cliente': self.cliente.id,
             'id_equipo': self.equipo.id,
             'id_prioridad': self.prioridad.id,
-            'id_estado': self.estado_nuevo.id,
+            'id_estado': self.estado_ingresado.id,
             'falla_reportada': 'La laptop no enciende',
         })
         
@@ -95,7 +95,7 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
             'ced_cliente': self.cliente.id,
             'id_equipo': self.equipo.id,
             'id_prioridad': self.prioridad.id,
-            'id_estado': self.estado_nuevo.id,
+            'id_estado': self.estado_ingresado.id,
             'falla_reportada': 'Problema de hardware',
         })
         
@@ -124,7 +124,7 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
                 'ced_cliente': self.cliente.id,
                 'id_equipo': self.equipo.id,
                 'id_prioridad': self.prioridad.id,
-                'id_estado': self.estado_nuevo.id,
+                'id_estado': self.estado_ingresado.id,
                 'falla_reportada': f'Problema {i+1}',
                 'ced_tecnico': self.tecnico1.id,
             })
@@ -146,7 +146,7 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
                 'ced_cliente': self.cliente.id,
                 'id_equipo': self.equipo.id,
                 'id_prioridad': self.prioridad.id,
-                'id_estado': self.estado_nuevo.id,
+                'id_estado': self.estado_ingresado.id,
                 'falla_reportada': f'Problema {i+1}',
                 'ced_tecnico': self.tecnico2.id,
             })
@@ -186,7 +186,7 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
             'ced_cliente': self.cliente.id,
             'id_equipo': self.equipo.id,
             'id_prioridad': prioridad_critica.id,
-            'id_estado': self.estado_nuevo.id,
+            'id_estado': self.estado_ingresado.id,
             'falla_reportada': 'Equipo crítico no funciona',
             'fecha_ingreso': hace_24h,
         })
@@ -211,7 +211,7 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
             'ced_cliente': self.cliente.id,
             'id_equipo': self.equipo.id,
             'id_prioridad': self.prioridad.id,
-            'id_estado': self.estado_nuevo.id,
+            'id_estado': self.estado_ingresado.id,
             'falla_reportada': 'Problema de prueba',
             'ced_tecnico': self.tecnico1.id,
         })
@@ -243,7 +243,7 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
             'ced_cliente': self.cliente.id,
             'id_equipo': self.equipo.id,
             'id_prioridad': self.prioridad.id,
-            'id_estado': self.estado_nuevo.id,
+            'id_estado': self.estado_ingresado.id,
             'falla_reportada': 'Problema de prueba',
         })
         
@@ -266,7 +266,7 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
             'ced_cliente': self.cliente.id,
             'id_equipo': self.equipo.id,
             'id_prioridad': self.prioridad.id,
-            'id_estado': self.estado_nuevo.id,
+            'id_estado': self.estado_ingresado.id,
             'falla_reportada': 'Problema de prueba',
             'ced_tecnico': self.tecnico1.id,
         })
@@ -320,7 +320,7 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
             'ced_cliente': self.cliente.id,
             'id_equipo': self.equipo.id,  # tipo_equipo = 'Laptop'
             'id_prioridad': self.prioridad.id,
-            'id_estado': self.estado_nuevo.id,
+            'id_estado': self.estado_ingresado.id,
             'falla_reportada': 'Laptop no funciona',
         })
         
