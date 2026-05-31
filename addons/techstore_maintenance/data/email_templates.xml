@@ -118,7 +118,7 @@
             </field>
         </record>
 
-        <!-- Plantilla: Recordatorio de Cierre (48 horas en finalizado) -->
+        <!-- Plantilla: Recordatorio de Cierre (48 horas en listo para entrega) -->
         <record id="email_template_recordatorio_cierre" model="mail.template">
             <field name="name">Recordatorio de Cierre de Mantenimiento</field>
             <field name="model_id" ref="model_techstore_mantenimiento"/>
@@ -132,7 +132,7 @@
                     </h2>
 
                     <p style="color: #333; line-height: 1.6;">
-                        Una orden de mantenimiento ha estado en estado <strong>"Finalizado"</strong> por más de 48 horas 
+                        Una orden de mantenimiento ha estado en estado <strong>"Listo para Entrega"</strong> por mas de 48 horas 
                         sin ser entregada. Se requiere acción para completar el proceso.
                     </p>
 
@@ -170,13 +170,13 @@
                                 </td>
                                 <td style="padding: 8px; border-bottom: 1px solid #eee;">
                                     <span style="background-color: #ffc107; color: white; padding: 4px 8px; border-radius: 3px; font-weight: bold;">
-                                        FINALIZADO (Pendiente entrega)
+                                        LISTO PARA ENTREGA (Pendiente entrega)
                                     </span>
                                 </td>
                             </tr>
                             <tr>
                                 <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">
-                                    Tiempo en Finalizado:
+                                    Tiempo en Listo para Entrega:
                                 </td>
                                 <td style="padding: 8px; border-bottom: 1px solid #eee;">
                                     <span style="color: #d32f2f; font-weight: bold;">Más de 48 horas</span>

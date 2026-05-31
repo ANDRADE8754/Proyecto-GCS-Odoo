@@ -62,8 +62,8 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
         cls.estado_nuevo = cls.env['techstore.estado'].search(
             [('nombre_estado', '=', 'nuevo')], limit=1
         )
-        cls.estado_finalizado = cls.env['techstore.estado'].search(
-            [('nombre_estado', '=', 'finalizado')], limit=1
+        cls.estado_listo_entrega = cls.env['techstore.estado'].search(
+            [('nombre_estado', '=', 'listo_entrega')], limit=1
         )
 
     def test_01_crear_mantenimiento_basico(self):

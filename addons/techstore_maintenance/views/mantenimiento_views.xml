@@ -84,7 +84,8 @@
                             <field name="puede_pasar_diagnostico" invisible="1"/>
                             <field name="puede_pasar_reparacion" invisible="1"/>
                             <field name="puede_pasar_esperando_repuestos" invisible="1"/>
-                            <field name="puede_pasar_finalizado" invisible="1"/>
+                            <field name="puede_pasar_control_calidad" invisible="1"/>
+                            <field name="puede_pasar_listo_entrega" invisible="1"/>
                             <field name="puede_pasar_entregado" invisible="1"/>
                             <field name="es_tecnico_jefe" invisible="1"/>
                             <field name="es_recepcionista" invisible="1"/>

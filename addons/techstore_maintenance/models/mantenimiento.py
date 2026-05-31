@@ -169,6 +169,12 @@ class TechstoreMantenimiento(models.Model):
         compute='_compute_pasos_estado',
         help='Control visual para mostrar el siguiente paso permitido'
     )
+    # Compatibilidad con vistas antiguas que usan "finalizado".
+    puede_pasar_finalizado = fields.Boolean(
+        string='Puede pasar a Listo para Entrega',
+        compute='_compute_pasos_estado',
+        help='Control visual para mostrar el siguiente paso permitido'
+    )
     puede_pasar_entregado = fields.Boolean(
         string='Puede pasar a Entregado',
         compute='_compute_pasos_estado',
@@ -368,6 +374,7 @@ class TechstoreMantenimiento(models.Model):
             record.puede_pasar_esperando_repuestos = estado_actual == 'reparacion'
             record.puede_pasar_control_calidad = estado_actual == 'reparacion'
             record.puede_pasar_listo_entrega = estado_actual == 'control_calidad'
+            record.puede_pasar_finalizado = record.puede_pasar_listo_entrega
             record.puede_pasar_entregado = estado_actual == 'listo_entrega'
 
     @api.depends()

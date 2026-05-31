@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- Enlazar registros existentes antes de intentar crearlos -->
+        <function model="techstore.estado" name="action_link_existing_records_xml_id"/>
+
         <!-- Registros de Estados -->
         <record id="techstore_estado_nuevo" model="techstore.estado">
             <field name="id_estado">EST-001</field>

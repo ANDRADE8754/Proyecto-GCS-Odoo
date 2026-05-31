@@ -57,6 +57,7 @@
             <field name="category_id" ref="module_category_techstore"/>
             <field name="comment">Acceso total al sistema. Puede configurar estados, prioridades, eliminar registros y gestionar la configuración del módulo.</field>
             <field name="implied_ids" eval="[(4, ref('techstore_group_manager'))]"/>
+            <field name="users" eval="[(4, ref('base.user_admin')), (4, ref('base.user_root'))]"/>
         </record>
 
         <!-- ═══════════════════════════════════════════

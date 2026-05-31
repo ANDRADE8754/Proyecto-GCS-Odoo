@@ -42,7 +42,7 @@ class TechstoreEstado(models.Model):
         string='¿Es Estado Final?',
         compute='_compute_es_estado_final',
         store=True,
-        help='Indica si es un estado final (finalizado o entregado)'
+        help='Indica si es un estado final (listo para entrega o entregado)'
     )
 
     # Restricciones SQL
@@ -75,3 +75,68 @@ class TechstoreEstado(models.Model):
         raise ValidationError(
             _('Los estados no se crean desde este campo. Use el menú de Estados para crear un estado válido.')
         )
+
+    @api.model
+    def action_link_existing_records_xml_id(self):
+        """Asocia estados y prioridades existentes en la BD con sus XML IDs en ir_model_data
+        para prevenir UniqueViolation al actualizar el módulo en entornos con DBs restauradas.
+        """
+        queries = [
+            """
+            INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
+            SELECT 'techstore_estado_nuevo', 'techstore_maintenance', 'techstore.estado', id, false
+            FROM techstore_estado WHERE id_estado = 'EST-001' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_estado_nuevo');
+            """,
+            """
+            INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
+            SELECT 'techstore_estado_diagnostico', 'techstore_maintenance', 'techstore.estado', id, false
+            FROM techstore_estado WHERE id_estado = 'EST-002' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_estado_diagnostico');
+            """,
+            """
+            INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
+            SELECT 'techstore_estado_reparacion', 'techstore_maintenance', 'techstore.estado', id, false
+            FROM techstore_estado WHERE id_estado = 'EST-003' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_estado_reparacion');
+            """,
+            """
+            INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
+            SELECT 'techstore_estado_esperando_repuestos', 'techstore_maintenance', 'techstore.estado', id, false
+            FROM techstore_estado WHERE id_estado = 'EST-004' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_estado_esperando_repuestos');
+            """,
+            """
+            INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
+            SELECT 'techstore_estado_control_calidad', 'techstore_maintenance', 'techstore.estado', id, false
+            FROM techstore_estado WHERE id_estado = 'EST-005' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_estado_control_calidad');
+            """,
+            """
+            INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
+            SELECT 'techstore_estado_listo_entrega', 'techstore_maintenance', 'techstore.estado', id, false
+            FROM techstore_estado WHERE id_estado = 'EST-006' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_estado_listo_entrega');
+            """,
+            """
+            INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
+            SELECT 'techstore_estado_entregado', 'techstore_maintenance', 'techstore.estado', id, false
+            FROM techstore_estado WHERE id_estado = 'EST-007' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_estado_entregado');
+            """,
+            """
+            INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
+            SELECT 'techstore_prioridad_baja', 'techstore_maintenance', 'techstore.prioridad', id, false
+            FROM techstore_prioridad WHERE id_prioridad = 'PRI-001' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_prioridad_baja');
+            """,
+            """
+            INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
+            SELECT 'techstore_prioridad_media', 'techstore_maintenance', 'techstore.prioridad', id, false
+            FROM techstore_prioridad WHERE id_prioridad = 'PRI-002' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_prioridad_media');
+            """,
+            """
+            INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
+            SELECT 'techstore_prioridad_alta', 'techstore_maintenance', 'techstore.prioridad', id, false
+            FROM techstore_prioridad WHERE id_prioridad = 'PRI-003' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_prioridad_alta');
+            """,
+            """
+            INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
+            SELECT 'techstore_prioridad_critica', 'techstore_maintenance', 'techstore.prioridad', id, false
+            FROM techstore_prioridad WHERE id_prioridad = 'PRI-004' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_prioridad_critica');
+            """
+        ]
+        for query in queries:
+            self.env.cr.execute(query)

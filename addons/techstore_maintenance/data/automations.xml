@@ -34,7 +34,7 @@ records.actualizar_disponibilidad_tecnicos()
             <field name="model_id" ref="model_techstore_mantenimiento"/>
             <field name="state">code</field>
             <field name="code">
-# Verificar órdenes en finalizado por más de 48 horas
+# Verificar órdenes en listo para entrega por más de 48 horas
 records.verificar_recordatorio_cierre()
             </field>
         </record>
@@ -85,10 +85,10 @@ for record in records:
             <field name="model_id" ref="model_techstore_mantenimiento"/>
             <field name="trigger">on_write</field>
             <field name="trg_field_ref" ref="field_techstore_mantenimiento_id_estado"/>
-            <field name="condition">record.id_estado.nombre_estado == 'finalizado'</field>
+            <field name="condition">record.id_estado.nombre_estado == 'listo_entrega'</field>
             <field name="action_server_id" ref="action_recordatorio_cierre"/>
             <field name="active" eval="True"/>
-            <field name="description">Envía recordatorio si una orden lleva más de 48 horas en estado finalizado</field>
+            <field name="description">Envia recordatorio si una orden lleva mas de 48 horas en estado listo para entrega</field>
         </record>
     </data>
 </odoo>
