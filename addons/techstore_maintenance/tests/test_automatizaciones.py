@@ -24,17 +24,17 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
         
         # Crear cliente de prueba
         cls.cliente = cls.env['techstore.cliente'].create({
-            'ced_cliente': '12345678',
+            'ced_cliente': '0105987648',
             'nombre': 'Cliente Prueba',
-            'tipo_cliente': 'empresa',
-            'telefono': '3115551234',
+            'tipo_cliente': 'particular',
+            'telefono': '0995551234',
             'correo': 'cliente@example.com',
         })
         
         # Crear equipo de prueba
         cls.equipo = cls.env['techstore.equipo'].create({
             'ced_cliente': cls.cliente.id,
-            'tipo_equipo': 'Laptop',
+            'tipo_equipo': 'laptop',
             'marca': 'Dell',
             'modelo': 'XPS 13',
             'serial': 'SN123456',
@@ -42,25 +42,32 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
         
         # Crear técnicos de prueba
         cls.tecnico1 = cls.env['techstore.tecnico'].create({
-            'ced_tecnico': 'TEC001',
+            'ced_tecnico': '1234567890',
             'nombre': 'Juan García',
             'especialidad': 'Hardware',
             'disponibilidad': True,
-            'telefono': '3005551111',
+            'telefono': '0905551111',
+            'correo': 'tecnico1@example.com',
+            'contrasena': 'password123',
         })
         
         cls.tecnico2 = cls.env['techstore.tecnico'].create({
-            'ced_tecnico': 'TEC002',
+            'ced_tecnico': '1234567891',
             'nombre': 'María López',
             'especialidad': 'Software',
             'disponibilidad': True,
-            'telefono': '3005552222',
+            'telefono': '0905552222',
+            'correo': 'tecnico2@example.com',
+            'contrasena': 'password123',
         })
         
         # Crear prioridad y estado
         cls.prioridad = cls.env['techstore.prioridad'].search([], limit=1)
         cls.estado_ingresado = cls.env['techstore.estado'].search(
             [('nombre_estado', '=', 'ingresado')], limit=1
+        )
+        cls.estado_diagnostico = cls.env['techstore.estado'].search(
+            [('nombre_estado', '=', 'diagnostico')], limit=1
         )
         cls.estado_listo_entrega = cls.env['techstore.estado'].search(
             [('nombre_estado', '=', 'listo_entrega')], limit=1
@@ -146,7 +153,7 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
                 'ced_cliente': self.cliente.id,
                 'id_equipo': self.equipo.id,
                 'id_prioridad': self.prioridad.id,
-                'id_estado': self.estado_ingresado.id,
+                'id_estado': self.estado_diagnostico.id,
                 'falla_reportada': f'Problema {i+1}',
                 'ced_tecnico': self.tecnico2.id,
             })
@@ -216,7 +223,12 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
             'ced_tecnico': self.tecnico1.id,
         })
         
-        # Cambiar de estado varias veces
+        # Cambiar de estado en secuencia: ingresado -> pendiente_asignacion -> diagnostico
+        estado_pendiente = self.env['techstore.estado'].search(
+            [('nombre_estado', '=', 'pendiente_asignacion')], limit=1
+        )
+        mantenimiento.id_estado = estado_pendiente.id
+        
         estado_diagnostico = self.env['techstore.estado'].search(
             [('nombre_estado', '=', 'diagnostico')], limit=1
         )
@@ -227,7 +239,7 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
         _logger.info(f"Registros en historial: {len(historial)}")
         
         for h in historial:
-            _logger.info(f"  - {h.id_historial}: {h.id_estado.nombre_estado} "
+            _logger.info(f"  - {h.id}: {h.id_estado.nombre_estado} "
                         f"({h.fecha_cambio.strftime('%H:%M:%S') if h.fecha_cambio else 'N/A'})")
         
         self.assertGreater(len(historial), 0)
@@ -309,11 +321,13 @@ class TestAutomatizacionesMantenimiento(TransactionCase):
         
         # Crear técnico especializado en Laptop
         tecnico_especialista = self.env['techstore.tecnico'].create({
-            'ced_tecnico': 'TEC003',
+            'ced_tecnico': '1234567892',
             'nombre': 'Pedro Especialista',
             'especialidad': 'Laptop',
             'disponibilidad': True,
-            'telefono': '3005553333',
+            'telefono': '0905553333',
+            'correo': 'tecnico3@example.com',
+            'contrasena': 'password123',
         })
         
         mantenimiento = self.env['techstore.mantenimiento'].create({

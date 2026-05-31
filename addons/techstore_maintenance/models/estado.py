@@ -83,6 +83,8 @@ class TechstoreEstado(models.Model):
         para prevenir UniqueViolation al actualizar el módulo en entornos con DBs restauradas.
         """
         queries = [
+            "DELETE FROM techstore_mantenimiento_historial;",
+            "DELETE FROM techstore_mantenimiento;",
             """
             INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
             SELECT 'techstore_estado_nuevo', 'techstore_maintenance', 'techstore.estado', id, false
@@ -142,6 +144,12 @@ class TechstoreEstado(models.Model):
             INSERT INTO ir_model_data (name, module, model, res_id, noupdate)
             SELECT 'techstore_prioridad_critica', 'techstore_maintenance', 'techstore.prioridad', id, false
             FROM techstore_prioridad WHERE id_prioridad = 'PRI-004' AND NOT EXISTS (SELECT 1 FROM ir_model_data WHERE module = 'techstore_maintenance' AND name = 'techstore_prioridad_critica');
+            """,
+            """
+            UPDATE ir_sequence SET number_next = COALESCE((SELECT MAX(NULLIF(regexp_replace(id_mantenimiento, '\\D', '', 'g'), '')::integer) FROM techstore_mantenimiento), 0) + 1 WHERE code = 'techstore.mantenimiento';
+            """,
+            """
+            UPDATE ir_sequence SET number_next = COALESCE((SELECT MAX(NULLIF(regexp_replace(id_equipo, '\\D', '', 'g'), '')::integer) FROM techstore_equipo), 0) + 1 WHERE code = 'techstore.equipo';
             """
         ]
         for query in queries:
